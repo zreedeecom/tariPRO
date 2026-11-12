@@ -15,14 +15,24 @@
   - [x] Luis: prueba manual de los diálogos (primer arranque, carpeta vacía, borrada, solo lectura, espera de 30 s, `schemaVersion` 3, puerto ocupado, cambios sin guardar, copias en conflicto)
 - [x] Paso 4 · Aviso de versión nueva, «Novedades» y «Acerca de»
 - [x] Paso 5 · Instaladores (Mac arm64 + x64, Windows x64) e icono
-- [ ] Paso 6 · Releases desde GitHub Actions; primera versión 0.2.0
-- [ ] Paso 7 · Corte: datos reales a `~/Dropbox/Apps/tariPRO`, prueba en los dos ordenadores
+- [x] Paso 6 · Releases desde GitHub Actions; 0.2.0 publicada y probada en Intel, Apple Silicon y Windows, con aviso de versión nueva
+- [ ] Paso 7 · Corte: datos reales a `~/Dropbox/Apps/tariPRO`; probado en los dos Mac, falta Windows
 - [ ] Luis: borrar `~/Code/tarifa-pro-impress` tras el corte
+- [ ] Paso 8 · README (instalar, avisos de app no firmada, publicar versión) y cierre de la spec
+
+## 003 · Borrar versiones · borrador (`specs/003-borrar-versiones/`)
+
+- [ ] Luis: preguntas abiertas y OK a la spec
+
+## 004 · Cambios desde otro ordenador y fusión · por valorar (`specs/004-fusionar-versiones/`)
+
+- [ ] Luis: valorar alcance (¿dividir en 004 y 005?) y preguntas abiertas
 
 ## Pendiente de Luis
 
 - [ ] Costes reales de troquelado y ollados (hoy «Pendiente»)
 - [ ] Licencia del repo antes de compartir la app (MIT u otra)
+- [ ] Antes de distribuir: firma de código. Mac: Apple Developer Program (99 $/año), Developer ID y notarización en CI. Windows: certificado de firma (p. ej. Certum Open Source, ~50 €/año)
 
 ## Ideas sin spec
 
