@@ -1,31 +1,48 @@
-# 004 · Cambios desde otro ordenador y fusión de versiones
+# 004 · Cambios desde otro ordenador
 
-Estado: **aprobada la idea** (Luis, 2026-11-12). Plan pendiente: se hace después de la 003.
+Estado: **aprobada la idea** (Luis, 2026-11-12). Plan escrito, pendiente de dos decisiones y del OK de Luis.
 
 ## Qué
 
-1. **Aviso de versión nueva mientras se edita.** Si alguien guarda una versión desde otro ordenador (o otra ventana) con la app abierta, la app lo detecta y avisa. Ofrece incorporar esos cambios al borrador sin perder lo hecho.
-2. **Fusionar dos versiones desde el panel.** Elegir dos versiones, ver sus diferencias, decidir qué prevalece en cada una y guardar el resultado como versión nueva. Las dos de origen quedan intactas, y la nueva anota de cuáles sale.
+Si alguien guarda una versión desde otro ordenador (u otra ventana) con la app abierta, la app lo detecta y trae esos cambios sin perder lo que llevas hecho. Solo pregunta cuando los dos habéis cambiado lo mismo de forma distinta.
+
+La fusión de dos versiones cualesquiera desde el panel pasa a la spec 005.
 
 ## Por qué
 
 Con los datos en Dropbox, dos personas (o Luis en dos ordenadores) pueden editar a la vez. Hoy no se pierde nada, pero el segundo en guardar recibe «El catálogo cambió en otra pestaña» y tiene que comparar a mano. Si recupera su borrador y guarda, la versión del otro deja de ser la vigente, aunque sigue en el historial. Lo normal es que no haya choques reales: cada uno crea o toca materiales distintos.
 
-## Cómo funcionaría
+## Alcance
 
-- **Fusión a tres bandas.** Para saber quién cambió qué, se compara cada lado con la versión de la que partieron los dos (la base). El borrador ya guarda su base; las versiones no. A partir de esta spec, cada versión anotaría de cuál parte (`basedOn`) y, si es una fusión, de cuáles sale (`mergedFrom`). Es un cambio de formato: `schemaVersion` 3 con su paso en `migrate()`.
-- **Por elemento.** Materiales y acabados se comparan por su `id`, campo a campo. Ajustes y textos del PDF, campo a campo. Lo que cambió en un solo lado entra solo. Solo pregunta cuando los dos cambiaron lo mismo de forma distinta, o uno borró lo que el otro editó.
-- **Detección.** Al volver a la ventana y cada pocos segundos, la app comprueba si `current.json` ha cambiado. Si es así, sale un aviso: «Se ha guardado “X” desde otro ordenador · Incorporar a mi borrador · Ver diferencias». Al guardar con la versión vigente cambiada, se ofrece lo mismo en vez del error actual.
-- **Fusión desde el panel.** Mismo motor. La base es la versión común más cercana, siguiendo `basedOn`. Con versiones antiguas, sin `basedOn`, no hay base: cada diferencia se presenta como elección.
-- **Marcado.** La versión fusionada muestra «Fusión de A y B». A y B muestran «Fusionada en C», para saber cuáles se pueden borrar (spec 003).
-
-## Preguntas abiertas
-
-1. **¿Dividirla en dos?** Propuesta: 004 = aviso e incorporar al borrador (lo de cada día); 005 = fusión de dos versiones cualesquiera desde el panel.
-2. **¿Cómo se presenta un conflicto?** Propuesta: agrupado por material o acabado, con los dos valores y su precio resultante, y elegir uno por campo. Con «quedarme con todo lo mío / todo lo suyo» para acabar rápido.
-3. **El orden de los materiales en la tarifa**, si los dos lo cambiaron: ¿se toma uno entero o se intenta combinar?
+1. **Detección.** La app comprueba cada pocos segundos, y al volver a la ventana, si la versión vigente ha cambiado.
+2. **Sin cambios propios:** se carga la versión nueva y se avisa con un mensaje breve. *(Pendiente de confirmar.)*
+3. **Con cambios propios:** aviso «Se ha guardado “X” desde otro ordenador» con «Incorporar a mi borrador» y «Más tarde».
+4. **Incorporar.** Se compara lo tuyo y lo suyo con la versión de la que partías:
+   - lo que cambió un solo lado entra solo;
+   - si los dos cambiasteis lo mismo de forma distinta, o uno quitó un acabado que el otro editó, hay un conflicto.
+   
+   Sin conflictos, el borrador queda con todo y un resumen dice qué ha entrado. Con conflictos, se abre una ventana para elegir. Después, el borrador se revisa y se guarda como siempre.
+5. **Al guardar con la vigente cambiada,** se ofrece lo mismo en vez del error actual.
+6. **Al recuperar un borrador de una sesión anterior** cuya versión de partida ya no es la vigente: se ofrece incorporar en vez de sustituir.
 
 ## Fuera de alcance
 
-- Edición en tiempo real entre ordenadores.
-- Bloquear la edición mientras otro edita.
+- Fusión de dos versiones cualesquiera desde el panel, con «Fusión de A y B» (spec 005).
+- Edición en tiempo real o bloqueo mientras otro edita.
+
+## Criterios de aceptación
+
+- Con la app abierta en dos sitios sobre la misma carpeta, lo guardado en uno aparece en el otro en segundos, sin reiniciar.
+- Dos personas añaden materiales distintos a la vez: incorporar deja los dos, sin preguntar nada.
+- Mismo campo cambiado distinto en cada lado: se pregunta, y el resultado lleva lo elegido.
+- Incorporar nunca toca la versión vigente ni el historial: solo cambia el borrador.
+- Un error de lectura durante la comprobación (Dropbox a medio sincronizar) no muestra avisos.
+- `npm test` en verde, con tests del motor de fusión.
+
+## Decisiones
+
+- Dividida: 004 = detectar e incorporar al borrador, sin cambio de formato; 005 = fusión desde el panel. *(Propuesta, pendiente de Luis.)*
+
+## Plan
+
+Ver [`plan.md`](plan.md).

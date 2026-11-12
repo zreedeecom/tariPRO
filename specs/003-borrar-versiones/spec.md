@@ -1,6 +1,6 @@
 # 003 · Borrar versiones
 
-Estado: **aprobada** (Luis, 2026-11-12).
+Estado: **hecha** (Luis la probó en la app, 2026-11-13).
 
 ## Qué
 
