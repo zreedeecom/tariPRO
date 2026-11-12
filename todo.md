@@ -23,8 +23,8 @@
 ## 003 · Borrar versiones · en curso (`feat/delete-versions`)
 
 - [x] OK de Luis a la spec (papelera, una a una) y al plan
-- [ ] Paso 1 · `remove()` y `DELETE /api/version/<id>`, con tests
-- [ ] Paso 2 · Botón y confirmación en el panel
+- [x] Paso 1 · `remove()` y `DELETE /api/version/<id>`, con tests
+- [x] Paso 2 · Botón y confirmación en el panel
 - [ ] Luis: prueba en la app
 
 ## 004 · Cambios desde otro ordenador y fusión · aprobada la idea (`specs/004-fusionar-versiones/`)

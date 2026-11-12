@@ -53,6 +53,17 @@ export class CatalogStore {
     });
     this.queue = operation.catch(() => {}); return operation;
   }
+  // Moves a saved version to papelera/ untouched; the current one stays. The app never empties papelera/.
+  remove(id) {
+    const operation = this.queue.then(async () => {
+      if (!/^[a-zA-Z0-9_-]+$/.test(id)) throw new Error('Versión no válida.');
+      if ((await this.read()).revision === id) { const error = new Error('La versión vigente no se puede borrar.'); error.status = 409; throw error; }
+      await fs.mkdir(path.join(this.directory, 'papelera'), { recursive: true });
+      try { await fs.rename(path.join(this.directory, 'versions', `${id}.json`), path.join(this.directory, 'papelera', `${id}.json`)); }
+      catch (error) { if (error.code === 'ENOENT') { const missing = new Error('Esta versión ya no existe; puede que se haya borrado desde otro ordenador.'); missing.status = 404; throw missing; } throw error; }
+    });
+    this.queue = operation.catch(() => {}); return operation;
+  }
   async version(id) { if (!/^[a-zA-Z0-9_-]+$/.test(id)) throw new Error('Versión no válida.'); return migrate(JSON.parse(await fs.readFile(path.join(this.directory, 'versions', `${id}.json`), 'utf8'))); }
   async history() {
     const names = (await fs.readdir(path.join(this.directory, 'versions'))).filter(name => versionFile.test(name));

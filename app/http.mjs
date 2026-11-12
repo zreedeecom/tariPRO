@@ -20,6 +20,7 @@ return async (request, response) => {
     if (request.method === 'GET' && url.pathname === '/api/state') return send(200, await store.read());
     if (request.method === 'GET' && url.pathname === '/api/history') return send(200, await store.history());
     if (request.method === 'GET' && url.pathname.startsWith('/api/version/')) return send(200, await store.version(url.pathname.split('/').at(-1)));
+    if (request.method === 'DELETE' && url.pathname.startsWith('/api/version/')) { await store.remove(url.pathname.split('/').at(-1)); return send(200, { ok: true }); }
     if (request.method === 'PUT' && url.pathname === '/api/state') { const payload = await body(request); return send(200, await store.save(payload.state, payload.expectedRevision, payload.label)); }
     if (request.method === 'POST' && url.pathname === '/api/preview') {
       const state = await body(request); const errors = validate(state); if (errors.length) return send(422, { error: errors.join('\n') });

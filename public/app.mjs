@@ -150,7 +150,7 @@ async function renderHistory() {
   try {
     const items = await api('/api/history');
     if (view !== 'history') return;
-    $('#history-list').innerHTML = `<h2>Historial de tarifas</h2>${items.map(item => `<div class="history-item"><div><h3>${escape(item.label)}${item.id === saved.revision ? '<span class="badge">Vigente</span>' : ''}</h3><p>${item.date ? new Date(item.date).toLocaleString('es-ES') : 'Importada de los documentos originales'} · ${item.materials} materiales</p></div><div class="history-actions"><button class="button small" data-action="restore-version" data-id="${item.id}">Recuperar borrador</button><button class="button small" data-action="export-version" data-id="${item.id}">${icon('download')}PDF</button></div></div>`).join('')}`;
+    $('#history-list').innerHTML = `<h2>Historial de tarifas</h2>${items.map(item => { const date = item.date ? new Date(item.date).toLocaleString('es-ES') : 'Importada de los documentos originales'; return `<div class="history-item"><div><h3>${escape(item.label)}${item.id === saved.revision ? '<span class="badge">Vigente</span>' : ''}</h3><p>${date} · ${item.materials} materiales</p></div><div class="history-actions"><button class="button small" data-action="restore-version" data-id="${item.id}">Recuperar borrador</button><button class="button small" data-action="export-version" data-id="${item.id}">${icon('download')}PDF</button>${item.id === saved.revision ? '' : `<button class="button small danger-text" data-action="delete-version" data-id="${item.id}" data-label="${escape(item.label)}" data-date="${escape(date)}">Borrar</button>`}</div></div>`; }).join('')}`;
   } catch (exception) { error(exception.message); }
 }
 function render() {
@@ -257,6 +257,9 @@ async function action(name, target) {
     if (isDirty() && !await confirmAction('Recuperar esta versión', 'Sustituirá el borrador actual. La tarifa guardada se mantendrá hasta que guardes una nueva versión.', 'Recuperar')) return;
     const state = await api(`/api/version/${target.dataset.id}`); draft = clone(state); changed(); view = 'tariff'; selectedId = draft.materials[0]?.id; render(); toast('Versión recuperada como borrador. Revisa y guarda cuando esté lista.');
   } else if (name === 'export-version') { await exportVersion(target.dataset.id);
+  } else if (name === 'delete-version') {
+    if (!await confirmAction('Borrar versión', `«${target.dataset.label}» (${target.dataset.date}) pasará a la carpeta papelera/ de los datos. Desde ahí se puede rescatar.`, 'Borrar')) return;
+    try { await api(`/api/version/${target.dataset.id}`, { method: 'DELETE' }); toast('Versión movida a la papelera.'); } finally { renderHistory(); }
   } else if (name === 'preview') { await preview(); }
 }
 

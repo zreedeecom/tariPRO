@@ -4,6 +4,9 @@ Formato: [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versionado
 
 ## [Unreleased]
 
+### Añadido
+- Borrar versiones desde «Versiones», salvo la vigente. Van a la carpeta `papelera/` de los datos, desde donde se pueden rescatar.
+
 ## [0.2.0] - 2026-11-12
 
 tariPRO pasa a ser una app de escritorio para Mac y Windows.

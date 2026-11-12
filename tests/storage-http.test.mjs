@@ -78,3 +78,15 @@ test('A folder with saved versions but no current.json is left untouched',async 
  assert.deepEqual(await fs.readdir(dir,{recursive:true}),before);
  const empty=path.join(dir,'empty');assert.equal(await inspectDataDirectory(empty),'empty');await fs.mkdir(path.join(empty,'versions'),{recursive:true});assert.equal(await inspectDataDirectory(empty),'empty');
 });
+test('Deleting a version moves it untouched to papelera/ and never the current one',async t=>{
+ const {dir,store,request,exportsDirectory}=await fixture(t);const state=await store.read();
+ const first=await store.save(state,'initial','Primera');const second=await store.save(state,first.revision,'Segunda');
+ await request('/api/export',{method:'POST',payload:{revision:first.revision}});
+ const read=file=>fs.readFile(path.join(dir,file),'utf8');const original=await read(`versions/${first.revision}.json`),current=await read('current.json');
+ assert.equal((await request(`/api/version/${first.revision}`,{method:'DELETE'})).status,200);
+ assert.equal(await read(`papelera/${first.revision}.json`),original);assert.equal(await read('current.json'),current);
+ assert.deepEqual((await request('/api/history')).json().map(item=>item.id),[second.revision,'initial']);assert.equal((await fs.readdir(exportsDirectory)).length,1);
+ const again=await request(`/api/version/${first.revision}`,{method:'DELETE'});assert.equal(again.status,404);assert.match(again.json().error,/ya no existe/);
+ const vigente=await request(`/api/version/${second.revision}`,{method:'DELETE'});assert.equal(vigente.status,409);await read(`versions/${second.revision}.json`);
+ assert.equal((await request('/api/version/..%2Fcurrent',{method:'DELETE'})).status,400);
+});
