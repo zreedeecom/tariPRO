@@ -6,6 +6,7 @@ Formato: [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versionado
 
 ### Añadido
 - App de escritorio (Electron), con `npm run app` mientras no haya instaladores: pide la carpeta de datos la primera vez y la recuerda en cada ordenador, pregunta antes de crear un catálogo en una carpeta vacía y vuelve a pedirla si desaparece o no se puede escribir en ella.
+- «Cambiar carpeta de datos…» pide guardar o descartar antes si hay cambios sin guardar, para no mezclar catálogos.
 - Si la carpeta tiene versiones pero aún no el catálogo actual, la app espera hasta 30 s a que termine la sincronización y después ofrece «Reintentar» o «Salir».
 - En la app, «Generar PDF» abre el PDF guardado en `exports/` y avisa de las copias en conflicto al arrancar.
 - Si el catálogo se guardó con una versión más nueva de tariPRO, la app no lo abre ni lo sobrescribe, y explica que hay que instalar la última versión.

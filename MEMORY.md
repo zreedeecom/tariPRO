@@ -19,6 +19,7 @@ Estado actual del proyecto. Solo lo vigente; máximo ~50 líneas.
 - Marca personalizable (logo, contacto, bloques del PDF) para otros rotulistas: más adelante, con su spec (Luis, 2026-11-12).
 - Fuente de los precios: el Maestro; la app reproduce sus 112 precios y 14 simulaciones. Esquema v2 = base + suplemento por acabado (Luis, 2026-11-11).
 - Uso alterno en Mac y Windows, nunca simultáneo (Luis, 2026-11-11).
+- Cambiar de carpeta de datos exige no tener borrador: el borrador no va ligado a la carpeta (Luis, 2026-11-12).
 
 ## Archivo privado (fuera del repo)
 

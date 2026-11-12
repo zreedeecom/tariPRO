@@ -32,6 +32,7 @@ Hoy hay que tener Node instalado y abrir el repo, y los datos viajan con git (qu
 
 - Primer arranque sin configuración: pide la carpeta y no deja continuar sin ella.
 - Con una carpeta vacía, pregunta «Esta carpeta está vacía. ¿Crear un catálogo nuevo aquí?». Si se responde que no, no escribe nada y vuelve a pedir la carpeta.
+- Con cambios sin guardar o un borrador pendiente, «Cambiar carpeta de datos…» pide guardar o descartar antes y no cambia nada.
 - Si la carpeta configurada desaparece o es de solo lectura, la vuelve a pedir y explica por qué.
 - Con versiones guardadas y sin `current.json`: espera hasta 30 s mostrándolo y luego ofrece «Reintentar» o «Salir», sin escribir nada en la carpeta.
 - Un catálogo guardado en un ordenador aparece en el otro al abrir la app, una vez Dropbox ha sincronizado.
@@ -44,6 +45,7 @@ Hoy hay que tener Node instalado y abrir el repo, y los datos viajan con git (qu
 
 ## Decisiones
 
+- Cambiar de carpeta de datos con cambios sin guardar o un borrador pendiente no se permite: hay que guardar o descartar antes, para no mezclar catálogos (Luis, 2026-11-12).
 - Carpeta a medio sincronizar: 3 intentos de 10 s y luego «Reintentar» o «Salir»; nunca se crea un catálogo encima (Luis, 2026-11-12).
 - Icono de la app: provisional a partir del favicon (cuadrado naranja) hasta tener uno definitivo (Luis, 2026-11-12).
 

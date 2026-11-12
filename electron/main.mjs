@@ -100,10 +100,16 @@ async function start() {
   }
 }
 
-// The new folder is only stored once the window really closes (unsaved changes may cancel it); the relaunch then runs the usual checks.
+// Drafts are not tied to a folder, so changing folders with one pending could mix catalogs: save or discard first.
+// The new folder is only stored once the window really closes; the relaunch then runs the usual checks.
 async function changeDataDirectory() {
-  const directory = await pickFolder(null); if (!directory) return;
-  pendingDirectory = directory; mainWindow.close();
+  if (await mainWindow.webContents.executeJavaScript('window.hasUnsavedChanges?.() ?? false')) {
+    await message({ type: 'info', message: 'Hay cambios sin guardar', detail: 'Guarda una versión o descarta el borrador antes de cambiar de carpeta de datos.', buttons: ['Entendido'] });
+    return;
+  }
+  const { canceled, filePaths } = await dialog.showOpenDialog(mainWindow, { title: 'Carpeta de datos de tariPRO', buttonLabel: 'Usar esta carpeta', properties: ['openDirectory', 'createDirectory'] });
+  if (canceled || filePaths[0] === dataDirectory) return;
+  pendingDirectory = filePaths[0]; mainWindow.close();
 }
 
 function buildMenu() {

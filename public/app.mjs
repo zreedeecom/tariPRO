@@ -333,6 +333,8 @@ $('#import-file').addEventListener('change', async event => {
   } catch (exception) { error(exception.message); } finally { event.target.value = ''; }
 });
 window.addEventListener('beforeunload', event => { if (draft && (isDirty() || invalidFields.size || busy)) { event.preventDefault(); event.returnValue = ''; } });
+// Read by the desktop app before changing the data folder: a draft (current or waiting to be recovered) belongs to this catalog.
+window.hasUnsavedChanges = () => { let stored = null; try { stored = localStorage.getItem(storageKey); } catch {} return Boolean(draft && (isDirty() || invalidFields.size || busy)) || stored !== null; };
 async function initialize() {
   try {
     saved = await api('/api/state'); draft = clone(saved); selectedId = draft.materials[0]?.id;

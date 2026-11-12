@@ -13,7 +13,6 @@
 - [x] Paso 2 · Bloqueo por datos más nuevos, `savedWith` y aviso de copias en conflicto
 - [x] Paso 3 · Electron: carpeta de datos obligatoria, ventana y menú
   - [ ] Luis: prueba manual de los diálogos (primer arranque, carpeta vacía, borrada, solo lectura, espera de 30 s, `schemaVersion` 3, puerto ocupado, cambios sin guardar, copias en conflicto)
-  - [ ] Decidir qué pasa con el borrador al cambiar de carpeta de datos
 - [ ] Paso 4 · Aviso de versión nueva, «Novedades» y «Acerca de»
 - [ ] Paso 5 · Instaladores (Mac arm64 + x64, Windows x64) e icono
 - [ ] Paso 6 · Releases desde GitHub Actions; primera versión 0.2.0
