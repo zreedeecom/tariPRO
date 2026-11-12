@@ -20,13 +20,16 @@
 - [ ] Luis: borrar `~/Code/tarifa-pro-impress` tras el corte
 - [ ] Paso 8 · README (instalar, avisos de app no firmada, publicar versión) y cierre de la spec
 
-## 003 · Borrar versiones · borrador (`specs/003-borrar-versiones/`)
+## 003 · Borrar versiones · en curso (`feat/delete-versions`)
 
-- [ ] Luis: preguntas abiertas y OK a la spec
+- [x] OK de Luis a la spec (papelera, una a una) y al plan
+- [ ] Paso 1 · `remove()` y `DELETE /api/version/<id>`, con tests
+- [ ] Paso 2 · Botón y confirmación en el panel
+- [ ] Luis: prueba en la app
 
-## 004 · Cambios desde otro ordenador y fusión · por valorar (`specs/004-fusionar-versiones/`)
+## 004 · Cambios desde otro ordenador y fusión · aprobada la idea (`specs/004-fusionar-versiones/`)
 
-- [ ] Luis: valorar alcance (¿dividir en 004 y 005?) y preguntas abiertas
+- [ ] Plan y preguntas abiertas, después de la 003
 
 ## Pendiente de Luis
 

@@ -1,6 +1,6 @@
 # 004 · Cambios desde otro ordenador y fusión de versiones
 
-Estado: **por valorar** (idea de Luis, 2026-11-12). Sin plan.
+Estado: **aprobada la idea** (Luis, 2026-11-12). Plan pendiente: se hace después de la 003.
 
 ## Qué
 
