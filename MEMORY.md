@@ -7,7 +7,7 @@ Estado actual del proyecto. Solo lo vigente; máximo ~50 líneas.
 - Repo nuevo (2026-11-12), sucesor de `~/Code/tarifa-pro-impress` (empezado con Codex). Se trajo solo el código; el historial, los originales y los análisis están en el archivo privado.
 - **El repo antiguo sigue siendo la copia de trabajo con los datos reales** hasta el corte de la spec 002. Aquí no se editan tarifas reales.
 - Spec 001 (tarifa base): hecha. Spec 002 (escritorio): spec + plan aprobados (Luis, 2026-11-12), en curso en `feat/desktop`.
-- 45 tests: 43 públicos y 2 de paridad con el Maestro (solo con `TARIPRO_FIXTURES`).
+- 46 tests: 44 públicos y 2 de paridad con el Maestro (solo con `TARIPRO_FIXTURES`).
 
 ## Decisiones vigentes
 

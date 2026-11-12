@@ -6,14 +6,25 @@ import { validate, materialize, migrate, SCHEMA_VERSION } from './model.mjs';
 
 const { version: appVersion } = JSON.parse(await fs.readFile(path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'package.json'), 'utf8'));
 
+const versionFile = /^[a-zA-Z0-9_-]+\.json$/;
+
+// 'ready' (has current.json), 'empty' (nothing saved yet) or 'incomplete' (saved versions without current.json: likely a folder still syncing).
+export async function inspectDataDirectory(directory) {
+  if (await fs.access(path.join(directory, 'current.json')).then(() => true, () => false)) return 'ready';
+  const saved = (await fs.readdir(path.join(directory, 'versions')).catch(() => [])).filter(name => versionFile.test(name));
+  return saved.length ? 'incomplete' : 'empty';
+}
+
 export class CatalogStore {
   constructor(directory, seedPath) { this.directory = directory; this.seedPath = seedPath; this.queue = Promise.resolve(); }
   async initialize() {
+    const status = await inspectDataDirectory(this.directory);
+    // Never seed a catalog over a half-synced folder: it would clash with the real one.
+    if (status === 'incomplete') { const error = new Error('Falta el catálogo actual (current.json), pero la carpeta tiene versiones guardadas. Puede que la sincronización no haya terminado. Por seguridad, tariPRO no crea ni modifica nada.'); error.code = 'INCOMPLETE_DATA'; error.status = 409; throw error; }
     await fs.mkdir(path.join(this.directory, 'versions'), { recursive: true });
-    try { await fs.access(path.join(this.directory, 'current.json')); }
-    catch {
+    if (status === 'empty') {
       const initial = JSON.parse(await fs.readFile(this.seedPath, 'utf8'));
-      await fs.writeFile(path.join(this.directory, 'versions', 'initial.json'), JSON.stringify(initial, null, 2) + '\n', { flag: 'wx' }).catch(error => { if (error.code !== 'EEXIST') throw error; });
+      await fs.writeFile(path.join(this.directory, 'versions', 'initial.json'), JSON.stringify(initial, null, 2) + '\n', { flag: 'wx' });
       await this.atomicWrite(initial);
     }
     const state = await this.read();
@@ -44,7 +55,7 @@ export class CatalogStore {
   }
   async version(id) { if (!/^[a-zA-Z0-9_-]+$/.test(id)) throw new Error('Versión no válida.'); return migrate(JSON.parse(await fs.readFile(path.join(this.directory, 'versions', `${id}.json`), 'utf8'))); }
   async history() {
-    const names = (await fs.readdir(path.join(this.directory, 'versions'))).filter(name => /^[a-zA-Z0-9_-]+\.json$/.test(name));
+    const names = (await fs.readdir(path.join(this.directory, 'versions'))).filter(name => versionFile.test(name));
     const items = await Promise.all(names.map(async name => { const state = await this.version(name.slice(0, -5)); return { id: state.revision, date: state.savedAt, label: state.versionLabel, materials: state.materials.length }; }));
     return items.sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
   }

@@ -6,6 +6,7 @@ Formato: [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versionado
 
 ### Añadido
 - Si el catálogo se guardó con una versión más nueva de tariPRO, la app no lo abre ni lo sobrescribe, y explica que hay que instalar la última versión.
+- Si la carpeta de datos tiene versiones guardadas pero le falta el catálogo actual (por ejemplo, porque Dropbox no ha terminado de sincronizar), la app no crea ni toca nada.
 - Cada versión guardada anota con qué versión de la app se guardó (`savedWith`).
 - Al arrancar, aviso de las copias en conflicto que Dropbox o pCloud hayan dejado en la carpeta de datos.
 

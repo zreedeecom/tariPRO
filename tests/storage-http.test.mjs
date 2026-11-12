@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import {Readable} from 'node:stream';
 import {fileURLToPath} from 'node:url';
-import {CatalogStore} from '../app/store.mjs';
+import {CatalogStore,inspectDataDirectory} from '../app/store.mjs';
 import {createHandler} from '../app/http.mjs';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 async function fixture(t){
@@ -69,4 +69,12 @@ test('Conflicted copies from Dropbox and pCloud are listed and do not break the 
  for(const name of names)await fs.writeFile(path.join(dir,name),'{}');await fs.writeFile(path.join(dir,'notas.txt'),'');
  assert.deepEqual(await store.conflicts(),[...names].sort());
  const history=(await request('/api/history')).json();assert.deepEqual(history.map(item=>item.id),['initial']);
+});
+test('A folder with saved versions but no current.json is left untouched',async t=>{
+ const {dir,store}=await fixture(t);assert.equal(await inspectDataDirectory(dir),'ready');
+ await fs.rm(path.join(dir,'current.json'));const before=await fs.readdir(dir,{recursive:true});
+ assert.equal(await inspectDataDirectory(dir),'incomplete');
+ const reopened=new CatalogStore(dir,path.join(root,'tests/fixtures/sample-catalog.json'));await assert.rejects(reopened.initialize(),error=>error.code==='INCOMPLETE_DATA');
+ assert.deepEqual(await fs.readdir(dir,{recursive:true}),before);
+ const empty=path.join(dir,'empty');assert.equal(await inspectDataDirectory(empty),'empty');await fs.mkdir(path.join(empty,'versions'),{recursive:true});assert.equal(await inspectDataDirectory(empty),'empty');
 });
