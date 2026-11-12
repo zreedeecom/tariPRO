@@ -24,7 +24,7 @@ function error(message) { $('#error-banner').textContent = message; $('#error-ba
 function toast(message) { $('#toast').textContent = message; $('#toast').hidden = false; clearTimeout(toast.timer); toast.timer = setTimeout(() => { $('#toast').hidden = true; }, 5000); }
 async function api(url, options = {}) {
   const response = await fetch(url, { ...options, headers: { 'Content-Type': 'application/json', ...options.headers } });
-  if (!response.ok) { const payload = await response.json().catch(() => ({})); throw new Error(payload.error || `No se pudo completar la operación (${response.status}).`); }
+  if (!response.ok) { const payload = await response.json().catch(() => ({})); throw Object.assign(new Error(payload.error || `No se pudo completar la operación (${response.status}).`), { code: payload.code }); }
   return response.headers.get('Content-Type')?.includes('application/pdf') ? response.blob() : response.json();
 }
 function persistDraft() {
@@ -348,6 +348,10 @@ async function initialize() {
       };
       $('#forget-draft').onclick = () => { persistDraft(); banner.hidden = true; recoveredDraft = null; };
     }
-  } catch (exception) { error(`No se pudo abrir el catálogo. ${exception.message} Comprueba que el servidor sigue en marcha y recarga la página.`); $('#main').innerHTML = '<div class="empty-state"><h1>No se ha cargado el catálogo</h1><p>Los datos guardados siguen en la carpeta del proyecto.</p><button class="button" id="retry-load">Volver a intentar</button></div>'; $('#retry-load').onclick = initialize; }
+  } catch (exception) {
+    const newer = exception.code === 'NEWER_DATA';
+    error(newer ? exception.message : `No se pudo abrir el catálogo. ${exception.message} Comprueba que el servidor sigue en marcha y recarga la página.`);
+    $('#main').innerHTML = `<div class="empty-state"><h1>No se ha cargado el catálogo</h1><p>${newer ? 'Los datos no se han tocado.' : 'Los datos guardados siguen en la carpeta de datos.'}</p><button class="button" id="retry-load">Volver a intentar</button></div>`; $('#retry-load').onclick = initialize;
+  }
 }
 initialize();

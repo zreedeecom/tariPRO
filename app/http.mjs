@@ -42,6 +42,6 @@ return async (request, response) => {
       const name = path.basename(url.pathname); return send(200, await fs.readFile(path.join(exportsDirectory, name)), 'application/pdf', { 'Content-Disposition': `inline; filename="${name}"` });
     }
     send(404, { error: 'No se encuentra este recurso.' });
-  } catch (error) { send(error.status || (error.code === 'ENOENT' ? 404 : 400), { error: error.message || 'No se pudo completar la operación.' }); }
+  } catch (error) { send(error.status || (error.code === 'ENOENT' ? 404 : 400), { error: error.message || 'No se pudo completar la operación.', code: error.code }); }
 };
 }

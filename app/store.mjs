@@ -1,9 +1,10 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
+import { fileURLToPath } from 'node:url';
 import { validate, materialize, migrate, SCHEMA_VERSION } from './model.mjs';
 
-const { version: appVersion } = JSON.parse(await fs.readFile(new URL('../package.json', import.meta.url), 'utf8'));
+const { version: appVersion } = JSON.parse(await fs.readFile(path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'package.json'), 'utf8'));
 
 export class CatalogStore {
   constructor(directory, seedPath) { this.directory = directory; this.seedPath = seedPath; this.queue = Promise.resolve(); }

@@ -55,7 +55,7 @@ test('Catalogs from a newer schema are refused and never overwritten',async t=>{
  await fs.writeFile(path.join(dir,'current.json'),newer);
  const reopened=new CatalogStore(dir,path.join(root,'tests/fixtures/sample-catalog.json'));await assert.rejects(reopened.initialize(),error=>error.code==='NEWER_DATA');
  await assert.rejects(store.save(state,'initial','Old app'),error=>error.code==='NEWER_DATA');
- assert.equal((await request('/api/state')).status,409);assert.equal(await fs.readFile(path.join(dir,'current.json'),'utf8'),newer);
+ const refused=await request('/api/state');assert.equal(refused.status,409);assert.equal(refused.json().code,'NEWER_DATA');assert.equal(await fs.readFile(path.join(dir,'current.json'),'utf8'),newer);
 });
 test('Each saved version records the app version that wrote it',async t=>{
  const {dir,store}=await fixture(t);const {version}=JSON.parse(await fs.readFile(path.join(root,'package.json'),'utf8'));
