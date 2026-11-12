@@ -11,7 +11,7 @@
 - [x] OK de Luis a `specs/002-escritorio/spec.md` y `plan.md`
 - [x] Paso 1 · Servidor arrancable desde Electron (`startServer`)
 - [x] Paso 2 · Bloqueo por datos más nuevos, `savedWith` y aviso de copias en conflicto
-- [ ] Paso 3 · Electron: carpeta de datos obligatoria, ventana y menú
+- [x] Paso 3 · Electron: carpeta de datos obligatoria, ventana y menú
 - [ ] Paso 4 · Aviso de versión nueva, «Novedades» y «Acerca de»
 - [ ] Paso 5 · Instaladores (Mac arm64 + x64, Windows x64) e icono
 - [ ] Paso 6 · Releases desde GitHub Actions; primera versión 0.2.0

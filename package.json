@@ -5,11 +5,17 @@
   "description": "Tarifa profesional de impresión digital: costes, márgenes, precios y PDF A4.",
   "author": "Luis Giménez (Impress Marketing)",
   "private": true,
+  "main": "electron/main.mjs",
   "engines": {
     "node": ">=22"
   },
   "scripts": {
     "start": "node server.mjs",
+    "app": "electron .",
     "test": "node --test tests/"
+  },
+  "devDependencies": {
+    "electron": "45.2.3",
+    "electron-builder": "26.18.0"
   }
 }

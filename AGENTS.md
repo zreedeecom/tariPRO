@@ -13,20 +13,20 @@ Tarifa profesional de impresión digital: costes, márgenes y precios de venta d
 - **Datos fuera del repo**: `current.json` y `versions/` (una instantánea inmutable por guardado) en `IMPRESS_DATA_DIR`; los PDF, en `IMPRESS_EXPORT_DIR`. Por defecto `data/` y `exports/`, ignorados por git.
 - Primer arranque sin datos: `app/empty-catalog.json`.
 - El borrador vive en el `localStorage` del navegador, ligado al origen (`127.0.0.1:4173`): si cambia el puerto, se pierden los borradores.
-- App de escritorio (Electron): `specs/002-escritorio/`, aún sin implementar.
+- App de escritorio (Electron, `electron/main.mjs`): pide la carpeta de datos (se recuerda por ordenador en `userData/settings.json`), arranca el mismo servidor en el puerto fijo 4173 y abre la ventana. En curso: `specs/002-escritorio/`.
 
 ## Stack y estructura
 
-- Node 22+, sin dependencias ni build.
-- `app/model.mjs` cálculo · `app/store.mjs` guardado atómico y versiones · `app/http.mjs` API y estáticos · `app/pdf.mjs` PDF vectorial propio (Helvetica con métricas AFM, sin fuentes incrustadas).
+- Node 22+, sin dependencias en tiempo de ejecución ni build. Solo de desarrollo: `electron` y `electron-builder`, con versión exacta.
+- `app/model.mjs` cálculo · `app/store.mjs` guardado atómico y versiones · `app/server.mjs` `startServer()` (lo usan `npm start` y Electron) · `app/http.mjs` API y estáticos · `app/pdf.mjs` PDF vectorial propio (Helvetica con métricas AFM, sin fuentes incrustadas).
 - `tests/` con `node --test`; `tests/fixtures/` es un catálogo de ejemplo con costes inventados.
 - `specs/NNN-nombre/`: spec + plan de cada funcionalidad.
 
 ## Comandos
 
-- `npm start` (http://127.0.0.1:4173) · `npm test`
+- `npm start` (http://127.0.0.1:4173) · `npm run app` (Electron) · `npm test`
 - `TARIPRO_FIXTURES=<carpeta> npm test`: añade los 2 tests de paridad con el Maestro, que usan datos reales de fuera del repo.
-- Variables: `PORT`, `IMPRESS_DATA_DIR`, `IMPRESS_EXPORT_DIR`.
+- Variables: `PORT`, `IMPRESS_DATA_DIR`, `IMPRESS_EXPORT_DIR` (`npm start`); `TARIPRO_USER_DATA` (Electron: carpeta de ajustes y borradores alternativa, para pruebas sin tocar la configuración real).
 
 ## Convenciones
 

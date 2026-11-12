@@ -31,4 +31,5 @@ Estado actual del proyecto. Solo lo vigente; máximo ~50 líneas.
 - `pdftoppm` pierde la negrita de Helvetica: revisar el PDF con Vista previa o `qlmanage`.
 - El borrador del navegador va ligado al puerto: en Electron, puerto fijo.
 - Los catálogos v1 se migran al leer y no se reescriben en disco hasta guardar.
+- Probar Electron: `TARIPRO_USER_DATA` y carpetas de prueba, nunca `~/Dropbox/Apps/tariPRO`. `screencapture` no ve otras ventanas sin permiso de grabación; con `--remote-debugging-port` se inspecciona la ventana, pero un diálogo nativo abierto bloquea esa API.
 - Costes de troquelado y ollados desconocidos: márgenes «Pendiente».
