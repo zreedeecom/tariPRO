@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Impress · Tarifas profesionales</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/styles.css">
+<script type="module" src="/app.mjs"></script>
+</head>
+<body>
+<a class="skip-link" href="#main">Saltar al contenido</a>
+<aside class="sidebar">
+<a class="brand" href="#tariff" aria-label="Impress, tarifa profesional"><img src="/assets/impress-logo.jpg" alt="Impress" width="155" height="36"></a>
+<p class="workspace-label">Tarifas profesionales</p>
+<nav aria-label="Secciones">
+<button data-view="tariff" class="nav-button active"><span data-icon="table"></span>Tarifa y materiales</button>
+<button data-view="finishes" class="nav-button"><span data-icon="layers"></span>Acabados</button>
+<button data-view="settings" class="nav-button"><span data-icon="sliders"></span>Costes y descuentos</button>
+<button data-view="simulator" class="nav-button"><span data-icon="ruler"></span>Simulador</button>
+<button data-view="document" class="nav-button"><span data-icon="file"></span>Documento A4</button>
+<button data-view="history" class="nav-button"><span data-icon="history"></span>Versiones</button>
+</nav>
+<div class="sidebar-bottom"><span class="local-dot"></span>Trabajo local<p>Todos los importes, sin IVA.</p><button class="text-button" id="backup-button">Exportar catálogo JSON</button></div>
+</aside>
+<div class="app-shell">
+<header class="topbar"><div><span class="status-dot" id="status-dot"></span><span id="save-status" role="status">Cargando catálogo…</span></div><div class="top-actions"><button class="button quiet" id="preview-button"><span data-icon="eye"></span>Vista previa</button><button class="button" id="export-button"><span data-icon="download"></span>Generar PDF</button><button class="button primary" id="save-button" disabled>Guardar versión</button></div></header>
+<div id="error-banner" class="banner error" role="alert" hidden></div>
+<div id="recovery-banner" class="banner" hidden></div>
+<main id="main" tabindex="-1"><div class="loading-state">Preparando tu tarifa…</div></main>
+</div>
+<div id="toast" class="toast" role="status" hidden></div>
+<dialog id="save-dialog"><form id="save-form"><h2>Guardar una nueva versión</h2><p>Se conservará el catálogo anterior. El PDF se generará con los precios de esta versión.</p><label>Nombre de la versión<input id="version-label" maxlength="100" required placeholder="Ej. Revisión de costes · noviembre 2026"></label><div id="save-summary" class="change-summary"></div><div class="dialog-actions"><button type="button" class="button quiet" data-close="save-dialog">Volver al borrador</button><button class="button primary" type="submit">Guardar versión</button></div></form></dialog>
+<dialog id="preview-dialog" class="preview-dialog"><div class="preview-top"><div><h2>Vista previa A4</h2><p id="preview-caption">Borrador · no crea una versión</p></div><button class="button quiet" data-close="preview-dialog">Cerrar</button></div><iframe id="pdf-frame" title="Vista previa de la tarifa en PDF A4"></iframe><a id="preview-link" class="button" target="_blank" rel="noopener">Abrir PDF en otra pestaña</a></dialog>
+<dialog id="confirm-dialog"><form method="dialog"><h2 id="confirm-title"></h2><p id="confirm-message"></p><div class="dialog-actions"><button class="button quiet" value="cancel">Cancelar</button><button class="button primary" value="accept" id="confirm-accept">Continuar</button></div></form></dialog>
+<input type="file" id="import-file" accept="application/json,.json" hidden>
+</body>
+</html>

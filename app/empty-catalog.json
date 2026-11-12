@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 2,
+  "revision": "initial",
+  "savedAt": null,
+  "versionLabel": "Catálogo vacío",
+  "settings": {
+    "inkCost": 0,
+    "setupCost": 0,
+    "wasteLength": 0,
+    "roundStep": 0.01,
+    "tiers": [
+      { "minimum": 5, "rate": 0 },
+      { "minimum": 10, "rate": 0 },
+      { "minimum": 25, "rate": 0 }
+    ]
+  },
+  "materials": [],
+  "finishes": [],
+  "document": {
+    "title": "Tarifa de impresión digital",
+    "subtitle": "",
+    "edition": "Edición 1",
+    "company": "Nombre de tu empresa",
+    "contact": "Dirección · Email · Teléfono",
+    "notes": [],
+    "shipping": [],
+    "groups": []
+  }
+}

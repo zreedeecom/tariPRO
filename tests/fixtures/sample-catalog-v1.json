@@ -1,0 +1,634 @@
+{
+  "schemaVersion": 1,
+  "revision": "initial",
+  "savedAt": null,
+  "versionLabel": "Catálogo de ejemplo (v1)",
+  "settings": {
+    "inkCost": 3.5,
+    "setupCost": 1.5,
+    "wasteLength": 0.25,
+    "roundStep": 0.01,
+    "tiers": [
+      {
+        "minimum": 5,
+        "rate": 0.05
+      },
+      {
+        "minimum": 10,
+        "rate": 0.1
+      },
+      {
+        "minimum": 25,
+        "rate": 0.15
+      }
+    ]
+  },
+  "materials": [
+    {
+      "id": "material-1",
+      "name": "LX Hausys LG2810G",
+      "category": "Vinilo monomérico",
+      "description": "Blanco brillo · Adhesivo gris opaco · Permanente",
+      "supplier": "Proveedor A",
+      "unit": "m2",
+      "active": true,
+      "cost": 2.1,
+      "inkCost": null,
+      "referenceQty": 1,
+      "rolls": [
+        {
+          "id": "roll-1",
+          "width": 1.37,
+          "cost": null
+        }
+      ],
+      "options": [
+        {
+          "id": "material-1-base",
+          "label": "Sin laminado",
+          "finishIds": [],
+          "price": 15,
+          "pricing": {
+            "mode": "margin",
+            "value": 0.5266666666666666
+          }
+        },
+        {
+          "id": "material-1-base-cut",
+          "label": "Sin laminado + troquelado",
+          "finishIds": [
+            "die-cut"
+          ],
+          "price": 20,
+          "pricing": {
+            "mode": "derived",
+            "value": 5,
+            "baseId": "material-1-base"
+          }
+        },
+        {
+          "id": "material-1-finished",
+          "label": "Con laminado",
+          "finishIds": [
+            "lam-mono"
+          ],
+          "price": 19,
+          "pricing": {
+            "mode": "margin",
+            "value": 0.5105263157894737
+          }
+        },
+        {
+          "id": "material-1-finished-cut",
+          "label": "Con laminado + troquelado",
+          "finishIds": [
+            "lam-mono",
+            "die-cut"
+          ],
+          "price": 24,
+          "pricing": {
+            "mode": "derived",
+            "value": 5,
+            "baseId": "material-1-finished"
+          }
+        }
+      ],
+      "displayName": "",
+      "tagline": "Duración media · trabajos estándar"
+    },
+    {
+      "id": "material-2",
+      "name": "Decal HT MONO",
+      "category": "Vinilo monomérico alto agarre",
+      "description": "Blanco brillo · Trasera blanca opacante · Alto agarre · Apto para paredes",
+      "supplier": "Proveedor B",
+      "unit": "m2",
+      "active": true,
+      "cost": 2.35,
+      "inkCost": null,
+      "referenceQty": 1,
+      "rolls": [
+        {
+          "id": "roll-2",
+          "width": 1.37,
+          "cost": null
+        }
+      ],
+      "options": [
+        {
+          "id": "material-2-base",
+          "label": "Sin laminado",
+          "finishIds": [],
+          "price": 15,
+          "pricing": {
+            "mode": "margin",
+            "value": 0.51
+          }
+        },
+        {
+          "id": "material-2-base-cut",
+          "label": "Sin laminado + troquelado",
+          "finishIds": [
+            "die-cut"
+          ],
+          "price": 20,
+          "pricing": {
+            "mode": "derived",
+            "value": 5,
+            "baseId": "material-2-base"
+          }
+        },
+        {
+          "id": "material-2-finished",
+          "label": "Con laminado",
+          "finishIds": [
+            "lam-mono"
+          ],
+          "price": 19,
+          "pricing": {
+            "mode": "margin",
+            "value": 0.49736842105263157
+          }
+        },
+        {
+          "id": "material-2-finished-cut",
+          "label": "Con laminado + troquelado",
+          "finishIds": [
+            "lam-mono",
+            "die-cut"
+          ],
+          "price": 24,
+          "pricing": {
+            "mode": "derived",
+            "value": 5,
+            "baseId": "material-2-finished"
+          }
+        }
+      ],
+      "displayName": "",
+      "tagline": "Duración media · trabajos especiales"
+    },
+    {
+      "id": "material-3",
+      "name": "LG 3921G",
+      "category": "Vinilo polimérico",
+      "description": "Blanco brillo · Trasera blanca · Adhesivo permanente",
+      "supplier": "Proveedor A",
+      "unit": "m2",
+      "active": true,
+      "cost": 3.2,
+      "inkCost": null,
+      "referenceQty": 1,
+      "rolls": [
+        {
+          "id": "roll-3",
+          "width": 1.37,
+          "cost": null
+        }
+      ],
+      "options": [
+        {
+          "id": "material-3-base",
+          "label": "Sin laminado",
+          "finishIds": [],
+          "price": 16,
+          "pricing": {
+            "mode": "margin",
+            "value": 0.48750000000000004
+          }
+        },
+        {
+          "id": "material-3-base-cut",
+          "label": "Sin laminado + troquelado",
+          "finishIds": [
+            "die-cut"
+          ],
+          "price": 21,
+          "pricing": {
+            "mode": "derived",
+            "value": 5,
+            "baseId": "material-3-base"
+          }
+        },
+        {
+          "id": "material-3-finished",
+          "label": "Con laminado",
+          "finishIds": [
+            "lam-poly"
+          ],
+          "price": 22,
+          "pricing": {
+            "mode": "margin",
+            "value": 0.4727272727272728
+          }
+        },
+        {
+          "id": "material-3-finished-cut",
+          "label": "Con laminado + troquelado",
+          "finishIds": [
+            "lam-poly",
+            "die-cut"
+          ],
+          "price": 27,
+          "pricing": {
+            "mode": "derived",
+            "value": 5,
+            "baseId": "material-3-finished"
+          }
+        }
+      ],
+      "displayName": "",
+      "tagline": "Mayor estabilidad · rotulación profesional"
+    },
+    {
+      "id": "material-4",
+      "name": "Oracal 3551 RA",
+      "category": "Vinilo polimérico",
+      "description": "Blanco brillo · Trasera gris · Adhesivo permanente",
+      "supplier": "Proveedor B",
+      "unit": "m2",
+      "active": true,
+      "cost": 4.05,
+      "inkCost": null,
+      "referenceQty": 1,
+      "rolls": [
+        {
+          "id": "roll-4",
+          "width": 1.37,
+          "cost": null
+        }
+      ],
+      "options": [
+        {
+          "id": "material-4-base",
+          "label": "Sin laminado",
+          "finishIds": [],
+          "price": 18,
+          "pricing": {
+            "mode": "margin",
+            "value": 0.49722222222222223
+          }
+        },
+        {
+          "id": "material-4-base-cut",
+          "label": "Sin laminado + troquelado",
+          "finishIds": [
+            "die-cut"
+          ],
+          "price": 23,
+          "pricing": {
+            "mode": "derived",
+            "value": 5,
+            "baseId": "material-4-base"
+          }
+        },
+        {
+          "id": "material-4-finished",
+          "label": "Con laminado",
+          "finishIds": [
+            "lam-poly"
+          ],
+          "price": 24,
+          "pricing": {
+            "mode": "margin",
+            "value": 0.48124999999999996
+          }
+        },
+        {
+          "id": "material-4-finished-cut",
+          "label": "Con laminado + troquelado",
+          "finishIds": [
+            "lam-poly",
+            "die-cut"
+          ],
+          "price": 29,
+          "pricing": {
+            "mode": "derived",
+            "value": 5,
+            "baseId": "material-4-finished"
+          }
+        }
+      ],
+      "displayName": "Oracal 3551 RA (Libre de burbujas)",
+      "tagline": "Gama premium · adhesivo gris"
+    },
+    {
+      "id": "material-5",
+      "name": "Image Perfect 2516",
+      "category": "Vinilo translúcido",
+      "description": "Blanco mate · Translúcido · Adhesivo permanente",
+      "supplier": "Proveedor A",
+      "unit": "m2",
+      "active": true,
+      "cost": 5.9,
+      "inkCost": null,
+      "referenceQty": 1,
+      "rolls": [
+        {
+          "id": "roll-5",
+          "width": 1.37,
+          "cost": null
+        }
+      ],
+      "options": [
+        {
+          "id": "material-5-base",
+          "label": "Sin laminado",
+          "finishIds": [],
+          "price": 21,
+          "pricing": {
+            "mode": "margin",
+            "value": 0.4809523809523809
+          }
+        },
+        {
+          "id": "material-5-base-cut",
+          "label": "Sin laminado + troquelado",
+          "finishIds": [
+            "die-cut"
+          ],
+          "price": 26,
+          "pricing": {
+            "mode": "derived",
+            "value": 5,
+            "baseId": "material-5-base"
+          }
+        },
+        {
+          "id": "material-5-finished",
+          "label": "Con laminado",
+          "finishIds": [
+            "lam-poly"
+          ],
+          "price": 27,
+          "pricing": {
+            "mode": "margin",
+            "value": 0.4703703703703703
+          }
+        },
+        {
+          "id": "material-5-finished-cut",
+          "label": "Con laminado + troquelado",
+          "finishIds": [
+            "lam-poly",
+            "die-cut"
+          ],
+          "price": 32,
+          "pricing": {
+            "mode": "derived",
+            "value": 5,
+            "baseId": "material-5-finished"
+          }
+        }
+      ],
+      "displayName": "",
+      "tagline": "Para cajas de luz y aplicaciones retroiluminadas"
+    },
+    {
+      "id": "material-6",
+      "name": "Ritrama RIJET C50",
+      "category": "Vinilo fundido",
+      "description": "Blanco brillo · Vinilo fundido",
+      "supplier": "Proveedor B",
+      "unit": "m2",
+      "active": true,
+      "cost": 8.4,
+      "inkCost": null,
+      "referenceQty": 1,
+      "rolls": [
+        {
+          "id": "roll-6",
+          "width": 1.37,
+          "cost": null
+        }
+      ],
+      "options": [
+        {
+          "id": "material-6-base",
+          "label": "Sin laminado",
+          "finishIds": [],
+          "price": 26,
+          "pricing": {
+            "mode": "margin",
+            "value": 0.48461538461538456
+          }
+        },
+        {
+          "id": "material-6-base-cut",
+          "label": "Sin laminado + troquelado",
+          "finishIds": [
+            "die-cut"
+          ],
+          "price": 31,
+          "pricing": {
+            "mode": "derived",
+            "value": 5,
+            "baseId": "material-6-base"
+          }
+        },
+        {
+          "id": "material-6-finished",
+          "label": "Con laminado",
+          "finishIds": [
+            "lam-cast"
+          ],
+          "price": 37,
+          "pricing": {
+            "mode": "margin",
+            "value": 0.4540540540540541
+          }
+        },
+        {
+          "id": "material-6-finished-cut",
+          "label": "Con laminado + troquelado",
+          "finishIds": [
+            "lam-cast",
+            "die-cut"
+          ],
+          "price": 42,
+          "pricing": {
+            "mode": "derived",
+            "value": 5,
+            "baseId": "material-6-finished"
+          }
+        }
+      ],
+      "displayName": "",
+      "tagline": "Superficies curvas y vehículos"
+    },
+    {
+      "id": "material-7",
+      "name": "Fujifilm FJFRONT510",
+      "category": "Lonas",
+      "description": "Frontlit semimate 510 g",
+      "supplier": "Proveedor A",
+      "unit": "m2",
+      "active": true,
+      "cost": 1.75,
+      "inkCost": null,
+      "referenceQty": 1,
+      "rolls": [
+        {
+          "id": "roll-7",
+          "width": 1.37,
+          "cost": null
+        }
+      ],
+      "options": [
+        {
+          "id": "material-7-base",
+          "label": "Sin acabado",
+          "finishIds": [],
+          "price": 15,
+          "pricing": {
+            "mode": "margin",
+            "value": 0.55
+          }
+        },
+        {
+          "id": "material-7-finished",
+          "label": "Con ollados",
+          "finishIds": [
+            "eyelets"
+          ],
+          "price": 20,
+          "pricing": {
+            "mode": "fixed",
+            "value": 0
+          }
+        }
+      ],
+      "displayName": "Lona Frontlit",
+      "tagline": "Impresión gran formato para exterior"
+    },
+    {
+      "id": "material-8",
+      "name": "Fujifilm FJMESH",
+      "category": "Lonas",
+      "description": "Microperforada con liner 310 g",
+      "supplier": "Proveedor B",
+      "unit": "m2",
+      "active": true,
+      "cost": 2.05,
+      "inkCost": null,
+      "referenceQty": 1,
+      "rolls": [
+        {
+          "id": "roll-8",
+          "width": 1.37,
+          "cost": null
+        }
+      ],
+      "options": [
+        {
+          "id": "material-8-base",
+          "label": "Sin acabado",
+          "finishIds": [],
+          "price": 15,
+          "pricing": {
+            "mode": "margin",
+            "value": 0.53
+          }
+        },
+        {
+          "id": "material-8-finished",
+          "label": "Con ollados",
+          "finishIds": [
+            "eyelets"
+          ],
+          "price": 20,
+          "pricing": {
+            "mode": "fixed",
+            "value": 0
+          }
+        }
+      ],
+      "displayName": "Lona Microperforada",
+      "tagline": "Impresión gran formato para exterior"
+    }
+  ],
+  "finishes": [
+    {
+      "id": "lam-mono",
+      "name": "Oracal 200M",
+      "cost": 2.2,
+      "rolls": [
+        {
+          "id": "roll-lam-mono",
+          "width": 1.37,
+          "cost": null
+        }
+      ],
+      "kind": "laminate"
+    },
+    {
+      "id": "lam-poly",
+      "name": "Oracal 215M",
+      "cost": 3.4,
+      "rolls": [
+        {
+          "id": "roll-lam-poly",
+          "width": 1.37,
+          "cost": null
+        }
+      ],
+      "kind": "laminate"
+    },
+    {
+      "id": "lam-cast",
+      "name": "RI-JET FLEXILAM 30",
+      "cost": 6.8,
+      "rolls": [
+        {
+          "id": "roll-lam-cast",
+          "width": 1.37,
+          "cost": null
+        }
+      ],
+      "kind": "laminate"
+    },
+    {
+      "id": "die-cut",
+      "name": "Troquelado",
+      "cost": null,
+      "rolls": [],
+      "kind": "process"
+    },
+    {
+      "id": "eyelets",
+      "name": "Ollados y corte a medida",
+      "cost": null,
+      "rolls": [],
+      "kind": "process"
+    }
+  ],
+  "document": {
+    "title": "Tarifa de impresión digital",
+    "subtitle": "Profesionales · Precios en €/m² · Sin IVA",
+    "edition": "Profesionales · 2026 V1",
+    "company": "Impress Marketing y Medios, S.L.",
+    "contact": "Calle de Ejemplo, 1 · 00000 Ciudad (Provincia)\nhola@ejemplo.com · 600 000 000",
+    "notes": [
+      "Descuentos por cantidad aplicados sobre el precio base de cada opción.",
+      "Todos los productos se entregan en bobina, tal y como salen de máquina, sin cortar ni manipular, para que el cliente realice el corte final.",
+      "Excepción: las lonas con ollados se entregan cortadas a medida y con los ollados colocados.",
+      "Corte a medida: si prefieres recibir el material ya cortado a la medida solicitada, se añadirán 3,50 €/m² al precio base. El descuento por cantidad se aplicará al precio con el suplemento incluido."
+    ],
+    "shipping": [
+      "Gratuito: a partir de 100 €.",
+      "Poblaciones cercanas: 5,90 €.",
+      "Resto de poblaciones: 6,90 €."
+    ],
+    "groups": [
+      {
+        "category": "Lonas",
+        "title": "Lonas",
+        "description": "Frontlit y microperforada",
+        "tagline": "Impresión gran formato para exterior"
+      }
+    ]
+  },
+  "source": {
+    "note": "Catálogo de ejemplo para tests: costes, márgenes, proveedores y contacto inventados."
+  }
+}
