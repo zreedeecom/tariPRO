@@ -49,6 +49,9 @@
       "identity": "-",
       "hardenedRuntime": false
     },
+    "dmg": {
+      "writeUpdateInfo": false
+    },
     "win": {
       "target": [
         {
@@ -59,11 +62,15 @@
         }
       ]
     },
+    "nsis": {
+      "differentialPackage": false
+    },
     "publish": {
       "provider": "github",
       "owner": "zreedeecom",
       "repo": "tariPRO",
-      "releaseType": "draft"
+      "releaseType": "draft",
+      "publishAutoUpdate": false
     }
   }
 }
