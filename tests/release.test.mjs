@@ -15,7 +15,7 @@ test('The installer matches the system and architecture',()=>{
 test('Changelog sections and HTML come out of the real CHANGELOG.md',async()=>{
  const markdown=await fs.readFile(new URL('../CHANGELOG.md',import.meta.url),'utf8');
  const section=changelogSection(markdown,'0.1.0');assert.match(section,/^## \[0\.1\.0\]/);assert.doesNotMatch(section,/Unreleased/);
- assert.doesNotMatch(changelogSection(markdown),/Keep a Changelog|Unreleased/);assert.match(changelogSection(markdown),/^## \[0\.1\.0\]/);assert.equal(changelogSection(markdown,'9.9.9'),'');
+ assert.doesNotMatch(changelogSection(markdown),/Keep a Changelog|Unreleased/);assert.match(changelogSection(markdown),/^## \[\d+\.\d+\.\d+\]/);assert.equal(changelogSection(markdown,'9.9.9'),'');
  const html=markdownToHtml('## [1.0.0]\n\n### Añadido\n- Uno con `código` y **negrita**\n- <script>\n\nVer [web](https://example.test).');
  assert.equal(html,'<h2>1.0.0</h2>\n<h3>Añadido</h3>\n<ul>\n<li>Uno con <code>código</code> y <strong>negrita</strong></li>\n<li>&lt;script&gt;</li>\n</ul>\n<p>Ver <a href="https://example.test">web</a>.</p>');
  assert.equal(plainNotes('### Añadido\n- **Uno** y `dos`'),'Añadido\n• Uno y dos');assert.equal(plainNotes('x'.repeat(20),10),`${'x'.repeat(10)}…`);

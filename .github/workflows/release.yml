@@ -1,0 +1,39 @@
+# Pushing a vX.Y.Z tag builds the installers and leaves them in a draft release; Luis reviews and publishes it.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      # One draft first, so the two builds upload to it instead of racing to create their own.
+      - run: |
+          node scripts/release-notes.mjs "$GITHUB_REF_NAME" > notes.md
+          gh release create "$GITHUB_REF_NAME" --draft --verify-tag --title "tariPRO ${GITHUB_REF_NAME#v}" --notes-file notes.md
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  build:
+    needs: draft
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npx electron-builder --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -4,28 +4,30 @@ Formato: [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versionado
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-12
+
+tariPRO pasa a ser una app de escritorio para Mac y Windows.
+
 ### Añadido
-- App de escritorio (Electron), con `npm run app` mientras no haya instaladores: pide la carpeta de datos la primera vez y la recuerda en cada ordenador, pregunta antes de crear un catálogo en una carpeta vacía y vuelve a pedirla si desaparece o no se puede escribir en ella.
-- «Cambiar carpeta de datos…» pide guardar o descartar antes si hay cambios sin guardar, para no mezclar catálogos.
-- Si la carpeta tiene versiones pero aún no el catálogo actual, la app espera hasta 30 s a que termine la sincronización y después ofrece «Reintentar» o «Salir».
-- Al arrancar, la app consulta si hay una versión nueva publicada y, si la hay, enseña sus novedades con un botón para descargar el instalador de ese ordenador. Sin conexión no dice nada.
-- Menú «Ayuda → Novedades» con el historial de cambios, que también se abre solo la primera vez tras actualizar, y «Acerca de tariPRO» con la versión y la carpeta de datos. Menús en español.
-- En la app, «Generar PDF» abre el PDF guardado en `exports/` y avisa de las copias en conflicto al arrancar.
-- Si el catálogo se guardó con una versión más nueva de tariPRO, la app no lo abre ni lo sobrescribe, y explica que hay que instalar la última versión.
-- Si la carpeta de datos tiene versiones guardadas pero le falta el catálogo actual (por ejemplo, porque Dropbox no ha terminado de sincronizar), la app no crea ni toca nada.
-- Cada versión guardada anota con qué versión de la app se guardó (`savedWith`).
-- Al arrancar, aviso de las copias en conflicto que Dropbox o pCloud hayan dejado en la carpeta de datos.
+- Instaladores para Mac (Apple Silicon e Intel) y Windows. Ya no hace falta Node ni abrir el proyecto.
+- Carpeta de datos a elegir, por ejemplo una de Dropbox, para usar la misma tarifa en varios ordenadores. Se pide la primera vez, se recuerda en cada ordenador y se cambia desde «Archivo → Cambiar carpeta de datos…» (antes hay que guardar o descartar el borrador).
+- En una carpeta vacía, pregunta antes de crear un catálogo.
+- Si la carpeta tiene versiones pero aún no el catálogo actual (Dropbox no ha terminado de sincronizar), espera hasta 30 s y luego ofrece «Reintentar» o «Salir», sin escribir nada.
+- Si los datos son de una versión más nueva de tariPRO, no los abre ni los sobrescribe, y ofrece descargarla.
+- Avisa de las copias en conflicto que dejen Dropbox o pCloud en la carpeta de datos.
+- Aviso de versión nueva al arrancar, con sus novedades y descarga del instalador de ese ordenador. Sin conexión no dice nada.
+- «Ayuda → Novedades» y «Acerca de tariPRO». La primera vez que se abre una versión nueva, enseña lo que ha cambiado.
+- «Generar PDF» abre el PDF guardado en la carpeta `exports/` de los datos.
+- Cada versión guardada anota con qué versión de la app se hizo.
+
+### Cambiado
+- El primer arranque empieza con un catálogo vacío.
 
 ### Corregido
 - Una copia en conflicto dentro de `versions/` ya no rompe el historial.
 
-### Cambiado
-- Repositorio nuevo, tariPRO, sin datos dentro: el catálogo, sus versiones y los PDF viven en la carpeta que indiquen `IMPRESS_DATA_DIR` e `IMPRESS_EXPORT_DIR` (por defecto `data/` y `exports/`, fuera de git).
-- El primer arranque crea un catálogo vacío (antes cargaba el catálogo de Impress).
-- Los tests usan un catálogo de ejemplo con costes inventados. Los de paridad con el Maestro (112 precios y 14 simulaciones) solo se ejecutan con `TARIPRO_FIXTURES`.
-
 ### Eliminado
-- `start.command` y `start.bat`: hasta que llegue la app de escritorio, se arranca con `npm start`.
+- `start.command` y `start.bat`: los sustituye la app de escritorio.
 
 ## [0.1.0] - 2026-11-11
 
