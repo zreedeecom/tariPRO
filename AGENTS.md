@@ -25,6 +25,7 @@ Tarifa profesional de impresión digital: costes, márgenes y precios de venta d
 ## Comandos
 
 - `npm start` (http://127.0.0.1:4173) · `npm run app` (Electron) · `npm test`
+- `npm run dist`: instaladores en `dist/` para el sistema actual (`-- --mac`, `-- --win`). Configuración en `package.json` (`build`); icono provisional en `build/icon.svg` → `build/icon.png`.
 - `TARIPRO_FIXTURES=<carpeta> npm test`: añade los 2 tests de paridad con el Maestro, que usan datos reales de fuera del repo.
 - Variables: `PORT`, `IMPRESS_DATA_DIR`, `IMPRESS_EXPORT_DIR` (`npm start`); `TARIPRO_USER_DATA` (Electron: carpeta de ajustes y borradores alternativa, para pruebas sin tocar la configuración real) y `TARIPRO_FAKE_VERSION` (Electron: versión con la que se compara la última release, para probar el aviso).
 

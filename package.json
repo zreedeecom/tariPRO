@@ -12,10 +12,58 @@
   "scripts": {
     "start": "node server.mjs",
     "app": "electron .",
+    "dist": "electron-builder --publish never",
     "test": "node --test tests/"
   },
   "devDependencies": {
     "electron": "45.2.3",
     "electron-builder": "26.18.0"
+  },
+  "build": {
+    "appId": "es.impr.taripro",
+    "productName": "tariPRO",
+    "artifactName": "${productName}-${version}-${arch}.${ext}",
+    "files": [
+      "app/**",
+      "public/**",
+      "!public/**/*.json",
+      "electron/**",
+      "CHANGELOG.md",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
+      ],
+      "category": "public.app-category.business",
+      "identity": "-",
+      "hardenedRuntime": false
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "zreedeecom",
+      "repo": "tariPRO",
+      "releaseType": "draft"
+    }
   }
 }
