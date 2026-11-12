@@ -50,3 +50,23 @@ test('Catalogs saved in the v1 format are read migrated and left untouched on di
  assert.equal((await request('/api/version/initial')).json().schemaVersion,2);assert.equal(await fs.readFile(path.join(dir,'current.json'),'utf8'),legacy);
  const exported=await request('/api/export',{method:'POST',payload:{revision:'initial'}});assert.equal(exported.status,200);
 });
+test('Catalogs from a newer schema are refused and never overwritten',async t=>{
+ const {dir,store,request}=await fixture(t);const state=await store.read();const newer=JSON.stringify({...state,schemaVersion:3},null,2);
+ await fs.writeFile(path.join(dir,'current.json'),newer);
+ const reopened=new CatalogStore(dir,path.join(root,'tests/fixtures/sample-catalog.json'));await assert.rejects(reopened.initialize(),error=>error.code==='NEWER_DATA');
+ await assert.rejects(store.save(state,'initial','Old app'),error=>error.code==='NEWER_DATA');
+ assert.equal((await request('/api/state')).status,409);assert.equal(await fs.readFile(path.join(dir,'current.json'),'utf8'),newer);
+});
+test('Each saved version records the app version that wrote it',async t=>{
+ const {dir,store}=await fixture(t);const {version}=JSON.parse(await fs.readFile(path.join(root,'package.json'),'utf8'));
+ const next=await store.save(await store.read(),'initial','Con versión');assert.equal(next.savedWith,version);
+ assert.equal(JSON.parse(await fs.readFile(path.join(dir,'versions',`${next.revision}.json`),'utf8')).savedWith,version);
+ assert.equal((await store.save(next,next.revision,'Otra')).savedWith,version);
+});
+test('Conflicted copies from Dropbox and pCloud are listed and do not break the history',async t=>{
+ const {dir,store,request}=await fixture(t);assert.deepEqual(await store.conflicts(),[]);
+ const names=['current (Luis\'s conflicted copy 2026-11-12).json',path.join('versions','initial (copia en conflicto de Luis 2026-11-12).json'),path.join('exports','tarifa [conflicted].pdf')];
+ for(const name of names)await fs.writeFile(path.join(dir,name),'{}');await fs.writeFile(path.join(dir,'notas.txt'),'');
+ assert.deepEqual(await store.conflicts(),[...names].sort());
+ const history=(await request('/api/history')).json();assert.deepEqual(history.map(item=>item.id),['initial']);
+});

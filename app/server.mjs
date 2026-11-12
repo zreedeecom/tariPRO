@@ -7,12 +7,12 @@ import { createHandler } from './http.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
-// Shared by `npm start` and Electron. Rejects with the listen error (e.g. EADDRINUSE) so each caller reports it its own way.
+// Shared by `npm start` and Electron. Rejects with the store or listen error (NEWER_DATA, EADDRINUSE…) so each caller reports it its own way.
 export async function startServer({ dataDirectory, exportsDirectory, port = 4173 }) {
   const store = new CatalogStore(dataDirectory, path.join(root, 'app/empty-catalog.json'));
   await store.initialize(); await fs.mkdir(exportsDirectory, { recursive: true });
   const logo = await fs.readFile(path.join(root, 'public/assets/impress-logo.jpg'));
   const server = http.createServer(createHandler({ root, port, store, logo, exportsDirectory }));
   await new Promise((resolve, reject) => { server.once('error', reject); server.listen(port, '127.0.0.1', () => { server.off('error', reject); resolve(); }); });
-  return server;
+  return { server, store };
 }

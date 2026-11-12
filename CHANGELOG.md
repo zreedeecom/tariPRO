@@ -4,6 +4,14 @@ Formato: [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versionado
 
 ## [Unreleased]
 
+### Añadido
+- Si el catálogo se guardó con una versión más nueva de tariPRO, la app no lo abre ni lo sobrescribe, y explica que hay que instalar la última versión.
+- Cada versión guardada anota con qué versión de la app se guardó (`savedWith`).
+- Al arrancar, aviso de las copias en conflicto que Dropbox o pCloud hayan dejado en la carpeta de datos.
+
+### Corregido
+- Una copia en conflicto dentro de `versions/` ya no rompe el historial.
+
 ### Cambiado
 - Repositorio nuevo, tariPRO, sin datos dentro: el catálogo, sus versiones y los PDF viven en la carpeta que indiquen `IMPRESS_DATA_DIR` e `IMPRESS_EXPORT_DIR` (por defecto `data/` y `exports/`, fuera de git).
 - El primer arranque crea un catálogo vacío (antes cargaba el catálogo de Impress).

@@ -1,7 +1,9 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
-import { validate, materialize, migrate } from './model.mjs';
+import { validate, materialize, migrate, SCHEMA_VERSION } from './model.mjs';
+
+const { version: appVersion } = JSON.parse(await fs.readFile(new URL('../package.json', import.meta.url), 'utf8'));
 
 export class CatalogStore {
   constructor(directory, seedPath) { this.directory = directory; this.seedPath = seedPath; this.queue = Promise.resolve(); }
@@ -16,8 +18,12 @@ export class CatalogStore {
     const state = await this.read();
     const errors = validate(state); if (errors.length) throw new Error(`El catálogo guardado no es válido: ${errors.join(' ')}`);
   }
-  // Older catalogs on disk stay untouched; they are upgraded in memory when read.
-  read() { return fs.readFile(path.join(this.directory, 'current.json'), 'utf8').then(text => migrate(JSON.parse(text))); }
+  // Older catalogs on disk stay untouched; they are upgraded in memory when read. Newer ones are refused, so this app never edits or overwrites them.
+  async read() {
+    const state = JSON.parse(await fs.readFile(path.join(this.directory, 'current.json'), 'utf8'));
+    if (state?.schemaVersion > SCHEMA_VERSION) { const error = new Error('Estos datos se guardaron con una versión más nueva de tariPRO. Instala la última versión para abrirlos.'); error.code = 'NEWER_DATA'; error.status = 409; throw error; }
+    return migrate(state);
+  }
   async atomicWrite(state) {
     const temporary = path.join(this.directory, `.current-${randomUUID()}.tmp`);
     try { await fs.writeFile(temporary, JSON.stringify(state, null, 2) + '\n', { flag: 'wx' }); await fs.rename(temporary, path.join(this.directory, 'current.json')); }
@@ -29,7 +35,7 @@ export class CatalogStore {
       if (current.revision !== expectedRevision) { const error = new Error('El catálogo cambió en otra pestaña. Exporta tu borrador y recarga antes de guardar.'); error.status = 409; throw error; }
       const errors = validate(state); if (errors.length) { const error = new Error(errors.join('\n')); error.status = 422; throw error; }
       const next = materialize(state); next.revision = `${new Date().toISOString().replace(/[:.]/g, '-')}-${randomUUID().slice(0, 8)}`;
-      next.savedAt = new Date().toISOString(); next.versionLabel = String(label || 'Actualización de tarifa').trim().slice(0, 100);
+      next.savedAt = new Date().toISOString(); next.versionLabel = String(label || 'Actualización de tarifa').trim().slice(0, 100); next.savedWith = appVersion;
       await fs.writeFile(path.join(this.directory, 'versions', `${next.revision}.json`), JSON.stringify(next, null, 2) + '\n', { flag: 'wx' });
       await this.atomicWrite(next); return next;
     });
@@ -37,8 +43,13 @@ export class CatalogStore {
   }
   async version(id) { if (!/^[a-zA-Z0-9_-]+$/.test(id)) throw new Error('Versión no válida.'); return migrate(JSON.parse(await fs.readFile(path.join(this.directory, 'versions', `${id}.json`), 'utf8'))); }
   async history() {
-    const names = (await fs.readdir(path.join(this.directory, 'versions'))).filter(name => name.endsWith('.json'));
+    const names = (await fs.readdir(path.join(this.directory, 'versions'))).filter(name => /^[a-zA-Z0-9_-]+\.json$/.test(name));
     const items = await Promise.all(names.map(async name => { const state = await this.version(name.slice(0, -5)); return { id: state.revision, date: state.savedAt, label: state.versionLabel, materials: state.materials.length }; }));
     return items.sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
+  }
+  // Conflicted copies left by Dropbox ("conflicted copy", "copia en conflicto") or pCloud ("[conflicted]"), only in the folders the app owns.
+  async conflicts() {
+    const names = await Promise.all(['', 'versions', 'exports'].map(folder => fs.readdir(path.join(this.directory, folder)).then(items => items.map(name => path.join(folder, name)), () => [])));
+    return names.flat().filter(name => /conflict/i.test(path.basename(name))).sort();
   }
 }
