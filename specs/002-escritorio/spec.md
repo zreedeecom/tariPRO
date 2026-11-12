@@ -1,6 +1,6 @@
 # 002 · Escritorio
 
-Estado: **propuesta**, pendiente del OK de Luis.
+Estado: **aprobada** (Luis, 2026-11-12).
 
 ## Qué
 
@@ -41,9 +41,9 @@ Hoy hay que tener Node instalado y abrir el repo, y los datos viajan con git (qu
 - `npm test` en verde; los instaladores de 0.2.0 se instalan y abren en el Mac de Luis (Apple Silicon), en el Ryzentosh (Intel) y en Windows.
 - Los borradores, versiones y PDF funcionan igual que en 0.1.0.
 
-## Preguntas abiertas
+## Decisiones
 
-- Icono de la app: propongo uno provisional a partir del favicon (cuadrado naranja) hasta tener uno definitivo.
+- Icono de la app: provisional a partir del favicon (cuadrado naranja) hasta tener uno definitivo (Luis, 2026-11-12).
 
 ## Plan
 
