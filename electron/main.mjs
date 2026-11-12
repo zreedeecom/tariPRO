@@ -138,7 +138,8 @@ function openMainWindow() {
     if (match) { event.preventDefault(); shell.openPath(path.join(exportsDirectory, match[1])); }
   });
   mainWindow.once('ready-to-show', () => mainWindow.show());
-  mainWindow.on('closed', () => { mainWindow = null; });
+  // PDF windows opened from the app close with it, so the app really quits (and frees the port and the lock).
+  mainWindow.on('closed', () => { mainWindow = null; for (const window of BrowserWindow.getAllWindows()) window.close(); });
   return mainWindow.loadURL(`${origin}/`);
 }
 
