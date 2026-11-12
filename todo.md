@@ -6,10 +6,10 @@
 - [x] Paridad con el Maestro: 112 precios y 14 simulaciones
 - [x] Repo nuevo sin datos: catálogo vacío al empezar, tests con catálogo inventado, paridad con `TARIPRO_FIXTURES`
 
-## 002 · Escritorio (Electron) · pendiente de OK
+## 002 · Escritorio (Electron) · en curso (`feat/desktop`)
 
-- [ ] OK de Luis a `specs/002-escritorio/spec.md` y `plan.md`
-- [ ] Paso 1 · Servidor arrancable desde Electron (`startServer`)
+- [x] OK de Luis a `specs/002-escritorio/spec.md` y `plan.md`
+- [x] Paso 1 · Servidor arrancable desde Electron (`startServer`)
 - [ ] Paso 2 · Bloqueo por datos más nuevos, `savedWith` y aviso de copias en conflicto
 - [ ] Paso 3 · Electron: carpeta de datos obligatoria, ventana y menú
 - [ ] Paso 4 · Aviso de versión nueva, «Novedades» y «Acerca de»
