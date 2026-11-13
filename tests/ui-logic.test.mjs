@@ -130,3 +130,17 @@ test('A recovered draft whose starting version is gone asks for every difference
  element('#merge-form').listeners.submit({preventDefault(){}});
  assert.deepEqual([ui.getDraft().materials[0].cost,ui.getDraft().materials[1].cost],[9,seed.materials[1].cost],'mine wins by default');assert.equal(element('#recovery-banner').hidden,true);
 });
+test('A version loaded from elsewhere keeps a pending draft from an earlier session',async()=>{
+ const recovered=structuredClone(seed);recovered.materials[0].cost=9;
+ const {ui,context,element,storage}=await harness({baseRevision:'initial',state:recovered});
+ const theirs=theirsWith(s=>{s.materials[1].cost=4;});
+ serve(context,{'GET /api/revision':{revision:'rev-theirs'},'GET /api/state':theirs,'GET /api/version/initial':seed});await ui.checkRemote();
+ assert.equal(ui.getSaved().revision,'rev-theirs');assert.equal(JSON.parse(storage.get('impress-tariff-draft-v2')).state.materials[0].cost,9);assert.equal(element('#recovery-banner').hidden,false);
+ await element('#recover-draft').onclick();
+ assert.deepEqual([ui.getDraft().materials[0].cost,ui.getDraft().materials[1].cost],[9,4]);assert.equal(JSON.parse(storage.get('impress-tariff-draft-v2')).baseRevision,'rev-theirs');
+});
+test('Forgetting a pending draft with no changes in this session clears it from storage',async()=>{
+ const recovered=structuredClone(seed);recovered.materials[0].cost=9;
+ const {element,storage}=await harness({baseRevision:'initial',state:recovered});
+ element('#forget-draft').onclick();assert.equal(storage.has('impress-tariff-draft-v2'),false);
+});

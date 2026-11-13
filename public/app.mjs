@@ -29,7 +29,8 @@ async function api(url, options = {}) {
   return response.headers.get('Content-Type')?.includes('application/pdf') ? response.blob() : response.json();
 }
 function persistDraft() {
-  try { localStorage.removeItem(legacyStorageKey); if (isDirty()) localStorage.setItem(storageKey, JSON.stringify({ baseRevision: saved.revision, state: draft })); else localStorage.removeItem(storageKey); }
+  // A draft from an earlier session stays stored until it is recovered or discarded.
+  try { localStorage.removeItem(legacyStorageKey); if (isDirty()) localStorage.setItem(storageKey, JSON.stringify({ baseRevision: saved.revision, state: draft })); else if (!recoveredDraft) localStorage.removeItem(storageKey); }
   catch { error('El navegador no permite recuperar el borrador tras cerrar. Guarda una versión o exporta el JSON antes de salir.'); }
 }
 function changed() { error(''); persistDraft(); updateStatus(); refreshComputed(); }
@@ -352,7 +353,7 @@ function incomingText(theirs, { added, removed, changed: edits }) {
   return `${parts.length ? `${verb} ${listText(parts)} de «${theirs.versionLabel}», guardada` : `Se ha incorporado «${theirs.versionLabel}», guardada`} desde otro ordenador. Tus cambios siguen en el borrador.`;
 }
 // Never swap the state under the user's hands: wait while saving, in a dialog, with a field in error or the cursor in a field.
-const canMerge = () => !busy && !invalidFields.size && !document.querySelector('dialog[open]') && !document.activeElement?.matches('input, textarea, select');
+const canMerge = () => !busy && !invalidFields.size && !document.querySelector('dialog[open]') && !document.activeElement?.matches('input:not([type=checkbox]):not([type=radio]), textarea');
 function hideRemote() { remote = null; $('#remote-banner').hidden = true; }
 // The draft is rebased on `theirs`: it becomes the saved version and the merge result the draft.
 function rebase(theirs, state) { saved = theirs; draft = state; hideRemote(); changed(); render(); }
@@ -456,14 +457,15 @@ async function initialize() {
     const requested = location.hash.slice(1); if (['tariff','finishes','settings','simulator','document','history'].includes(requested)) view = requested;
     try { recoveredDraft = JSON.parse(localStorage.getItem(storageKey) ?? localStorage.getItem(legacyStorageKey)); if (recoveredDraft?.state) recoveredDraft.state = migrate(recoveredDraft.state); } catch { recoveredDraft = null; }
     render();
-    if (recoveredDraft?.state && JSON.stringify(recoveredDraft.state) !== JSON.stringify(saved)) {
+    if (!recoveredDraft?.state || JSON.stringify(recoveredDraft.state) === JSON.stringify(saved)) recoveredDraft = null;
+    if (recoveredDraft) {
       const banner = $('#recovery-banner'); banner.hidden = false;
       const older = recoveredDraft.baseRevision !== saved.revision;
       // The label is set now; whether to merge is decided on click, since the saved version may change meanwhile.
       banner.innerHTML = `Hay un borrador de una sesión anterior.${older ? ` Se hizo sobre otra versión: al recuperarlo se le incorporan los cambios de «${escape(saved.versionLabel)}».` : ''} <button class="button small" id="recover-draft">${older ? 'Recuperar e incorporar' : 'Recuperar borrador'}</button><button class="text-button" id="forget-draft">Descartar</button>`;
       $('#recover-draft').onclick = async () => {
         if ((isDirty() || invalidFields.size) && !await confirmAction('Sustituir el borrador actual', 'Has realizado cambios en esta sesión. Recuperar el borrador anterior los sustituirá.', 'Recuperar anterior')) return;
-        invalidFields.clear(); const done = () => { banner.hidden = true; recoveredDraft = null; };
+        invalidFields.clear(); const done = () => { banner.hidden = true; recoveredDraft = null; persistDraft(); };
         if (recoveredDraft.baseRevision === saved.revision) { draft = recoveredDraft.state; selectedId = draft.materials[0]?.id; done(); changed(); render(); toast('Borrador recuperado. Revisa los cambios antes de guardar.'); return; }
         // Its starting version may be in papelera/; if it is gone, every difference becomes a choice.
         const base = await api(`/api/version/${recoveredDraft.baseRevision}`).catch(() => ({ settings: {}, document: {}, materials: [], finishes: [] }));
@@ -471,7 +473,7 @@ async function initialize() {
         if (result.conflicts.length || result.errors.length) { openMerge({ base, mine: recoveredDraft.state, theirs: saved, after: done, intro: `Tu borrador anterior se hizo sobre otra versión. Elige qué conservar donde no coincide con «${saved.versionLabel}»; lo demás se junta solo.` }); return; }
         rebase(saved, result.state); done(); toast(`Borrador recuperado con los cambios de «${saved.versionLabel}». Revisa antes de guardar.`);
       };
-      $('#forget-draft').onclick = () => { persistDraft(); banner.hidden = true; recoveredDraft = null; };
+      $('#forget-draft').onclick = () => { banner.hidden = true; recoveredDraft = null; persistDraft(); };
     }
   } catch (exception) {
     const newer = exception.code === 'NEWER_DATA';
