@@ -10,10 +10,10 @@ Tarifa profesional de impresión digital: costes, márgenes y precios de venta d
 ## Cómo funciona
 
 - Servidor Node local (`server.mjs`, solo `127.0.0.1`) y la interfaz en `public/`, sin build. Servidor y navegador comparten `app/model.mjs`.
-- **Datos fuera del repo**: `current.json` y `versions/` (una instantánea inmutable por guardado) en `IMPRESS_DATA_DIR`; los PDF, en `IMPRESS_EXPORT_DIR`. Por defecto `data/` y `exports/`, ignorados por git.
+- **Datos fuera del repo**: `current.json`, `versions/` (una instantánea inmutable por guardado) y `papelera/` (versiones borradas, nunca se vacía sola) en `IMPRESS_DATA_DIR`; los PDF, en `IMPRESS_EXPORT_DIR`. Por defecto `data/` y `exports/`, ignorados por git.
 - Primer arranque sin datos: `app/empty-catalog.json`.
 - El borrador vive en el `localStorage` del navegador, ligado al origen (`127.0.0.1:4173`): si cambia el puerto, se pierden los borradores.
-- App de escritorio (Electron, `electron/main.mjs`): pide la carpeta de datos (se recuerda por ordenador en `userData/settings.json`), arranca el mismo servidor en el puerto fijo 4173 y abre la ventana. En curso: `specs/002-escritorio/`.
+- App de escritorio (Electron, `electron/main.mjs`): pide la carpeta de datos (se recuerda por ordenador en `userData/settings.json`), arranca el mismo servidor en el puerto fijo 4173 y abre la ventana.
 
 ## Stack y estructura
 

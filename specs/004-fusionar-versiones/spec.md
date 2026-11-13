@@ -1,6 +1,6 @@
 # 004 · Cambios desde otro ordenador
 
-Estado: **aprobada la idea** (Luis, 2026-11-12). Plan escrito, pendiente de dos decisiones y del OK de Luis.
+Estado: **aprobada**, con su plan (Luis, 2026-11-13). Por implementar.
 
 ## Qué
 
@@ -15,13 +15,13 @@ Con los datos en Dropbox, dos personas (o Luis en dos ordenadores) pueden editar
 ## Alcance
 
 1. **Detección.** La app comprueba cada pocos segundos, y al volver a la ventana, si la versión vigente ha cambiado.
-2. **Sin cambios propios:** se carga la versión nueva y se avisa con un mensaje breve. *(Pendiente de confirmar.)*
-3. **Con cambios propios:** aviso «Se ha guardado “X” desde otro ordenador» con «Incorporar a mi borrador» y «Más tarde».
-4. **Incorporar.** Se compara lo tuyo y lo suyo con la versión de la que partías:
+2. **Sin conflictos, se incorpora sola:** si no tienes cambios, se carga la versión nueva; si los tienes y no chocan, entran los suyos y los tuyos siguen en el borrador. En los dos casos, un aviso dice qué ha entrado.
+3. **Con conflictos:** aviso «Se ha guardado “X” desde otro ordenador y choca con tu borrador» con «Resolver» y «Más tarde».
+4. **Cómo se fusiona.** Se compara lo tuyo y lo suyo con la versión de la que partías:
    - lo que cambió un solo lado entra solo;
    - si los dos cambiasteis lo mismo de forma distinta, o uno quitó un acabado que el otro editó, hay un conflicto.
    
-   Sin conflictos, el borrador queda con todo y un resumen dice qué ha entrado. Con conflictos, se abre una ventana para elegir. Después, el borrador se revisa y se guarda como siempre.
+   «Resolver» abre una ventana para elegir. Después, el borrador se revisa y se guarda como siempre.
 5. **Al guardar con la vigente cambiada,** se ofrece lo mismo en vez del error actual.
 6. **Al recuperar un borrador de una sesión anterior** cuya versión de partida ya no es la vigente: se ofrece incorporar en vez de sustituir.
 
@@ -33,7 +33,7 @@ Con los datos en Dropbox, dos personas (o Luis en dos ordenadores) pueden editar
 ## Criterios de aceptación
 
 - Con la app abierta en dos sitios sobre la misma carpeta, lo guardado en uno aparece en el otro en segundos, sin reiniciar.
-- Dos personas añaden materiales distintos a la vez: incorporar deja los dos, sin preguntar nada.
+- Dos personas añaden materiales distintos a la vez: los dos quedan en el borrador, sin preguntar nada.
 - Mismo campo cambiado distinto en cada lado: se pregunta, y el resultado lleva lo elegido.
 - Incorporar nunca toca la versión vigente ni el historial: solo cambia el borrador.
 - Un error de lectura durante la comprobación (Dropbox a medio sincronizar) no muestra avisos.
@@ -41,7 +41,8 @@ Con los datos en Dropbox, dos personas (o Luis en dos ordenadores) pueden editar
 
 ## Decisiones
 
-- Dividida: 004 = detectar e incorporar al borrador, sin cambio de formato; 005 = fusión desde el panel. *(Propuesta, pendiente de Luis.)*
+- Dividida: 004 = detectar e incorporar al borrador, sin cambio de formato; 005 = fusión desde el panel, con `schemaVersion` 3 (Luis, 2026-11-13).
+- Sin conflictos, los cambios del otro ordenador se cargan solos con un aviso, tengas o no cambios propios. Solo se pregunta si hay conflictos (Luis, 2026-11-13).
 
 ## Plan
 

@@ -5,9 +5,10 @@ Estado actual del proyecto. Solo lo vigente; máximo ~50 líneas.
 ## Estado
 
 - Repo nuevo (2026-11-12), sucesor de `~/Code/tarifa-pro-impress` (empezado con Codex). Se trajo solo el código; el historial, los originales y los análisis están en el archivo privado.
-- **El repo antiguo sigue siendo la copia de trabajo con los datos reales** hasta el corte de la spec 002. Aquí no se editan tarifas reales.
-- Spec 001 (tarifa base): hecha. Spec 002 (escritorio): spec + plan aprobados (Luis, 2026-11-12), en curso en `feat/desktop`.
-- 49 tests: 47 públicos y 2 de paridad con el Maestro (solo con `TARIPRO_FIXTURES`).
+- Los datos reales viven en `~/Dropbox/Apps/tariPRO` (copiados del repo antiguo el 2026-11-12) y se editan con la app instalada. En el repo no se editan tarifas reales.
+- Spec 001 (tarifa base): hecha. Spec 002 (escritorio): 0.2.0 publicada; datos reales ya en `~/Dropbox/Apps/tariPRO` y probados en los dos Mac. Falta: Windows con la carpeta real, README (paso 8) y que Luis borre el repo antiguo.
+- Spec 003 (borrar versiones a `papelera/`): hecha, en `main` y sin publicar. Spec 004 (cambios desde otro ordenador): aprobada, por implementar; empezar por el paso 1 de su plan. Spec 005 (fusión desde el panel): idea.
+- 50 tests: 48 públicos y 2 de paridad con el Maestro (solo con `TARIPRO_FIXTURES`).
 
 ## Decisiones vigentes
 
@@ -20,6 +21,9 @@ Estado actual del proyecto. Solo lo vigente; máximo ~50 líneas.
 - Fuente de los precios: el Maestro; la app reproduce sus 112 precios y 14 simulaciones. Esquema v2 = base + suplemento por acabado (Luis, 2026-11-11).
 - Uso alterno en Mac y Windows, nunca simultáneo (Luis, 2026-11-11).
 - Cambiar de carpeta de datos exige no tener borrador: el borrador no va ligado a la carpeta (Luis, 2026-11-12).
+- Borrar versiones las mueve a `papelera/`, una a una; la vigente no se borra (Luis, 2026-11-12).
+- Cambios desde otro ordenador: sin conflictos se cargan solos con aviso; solo se pregunta si chocan. Sin cambio de formato en la 004; `schemaVersion` 3 queda para la 005 (Luis, 2026-11-13).
+- Firma de código (Apple 99 $/año, Certum ~50 €/año): solo cuando se distribuya (Luis, 2026-11-12).
 
 ## Archivo privado (fuera del repo)
 

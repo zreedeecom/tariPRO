@@ -32,11 +32,9 @@ Rama `feat/live-changes`. Spec en [`spec.md`](spec.md).
   - `version()` busca también en `papelera/` cuando se pide la base de un borrador recuperado.
 - **Navegador (`public/app.mjs`).**
   - Comprobación cada 5 s con la ventana visible y al volver a ella. Si falla, no se muestra nada.
-  - Nunca se cambia el estado si hay un guardado en curso, un diálogo abierto o campos con error: se espera a la siguiente.
-  - **Sin cambios propios:** se carga la nueva y sale el aviso breve. *(Si Luis lo confirma.)*
-  - **Con cambios propios:** banner con «Incorporar a mi borrador» y «Más tarde». «Más tarde» recuerda esa revisión para no repetir el aviso; si llega otra, vuelve a avisar.
-  - **Incorporar sin conflictos:** rebase y resumen («Entran 2 materiales nuevos y 3 cambios del otro ordenador»).
-  - **Con conflictos:** diálogo agrupado por material o acabado. Cada campo enseña los dos valores, y en los materiales el precio base que resulta de cada opción. Hay «Quedarme con todo lo mío / todo lo suyo» y «Aplicar».
+  - Nunca se cambia el estado si hay un guardado en curso, un diálogo abierto, campos con error o el cursor en un campo (se perdería lo que se está escribiendo): se espera a la siguiente comprobación.
+  - **Sin conflictos** (con o sin cambios propios): se incorpora sola, con rebase, y sale un aviso con el resumen: «Se ha cargado “X”, guardada desde otro ordenador» o «Entran 2 materiales nuevos y 3 cambios del otro ordenador; tus cambios siguen en el borrador».
+  - **Con conflictos:** banner «Se ha guardado “X” desde otro ordenador y choca con tu borrador» con «Resolver» y «Más tarde». «Más tarde» recuerda esa revisión para no repetir el aviso; si llega otra, vuelve a avisar. «Resolver» abre un diálogo agrupado por material o acabado. Cada campo enseña los dos valores, y en los materiales el precio base que resulta de cada opción. Hay «Quedarme con todo lo mío / todo lo suyo» y «Aplicar».
   - **Al guardar con `STALE`:** se lee la vigente y se sigue el mismo flujo; después se revisa y se guarda.
   - **Borrador recuperado** con otra versión de partida: «Recuperar e incorporar» hace la fusión a tres bandas con la versión de partida leída de `versions/` o `papelera/`. Si ya no existe, cada diferencia se presenta como elección.
 

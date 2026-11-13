@@ -27,10 +27,16 @@
 - [x] Paso 2 · Botón y confirmación en el panel
 - [x] Luis: prueba en la app
 
-## 004 · Cambios desde otro ordenador · plan escrito (`specs/004-fusionar-versiones/`)
+## 004 · Cambios desde otro ordenador · aprobada, por implementar (`specs/004-fusionar-versiones/`)
 
-- [x] Plan
-- [ ] Luis: decidir la división 004/005 y si se carga sola la versión nueva sin cambios propios; OK al plan
+- [x] Spec y plan aprobados: dividida en 004/005, y sin conflictos se carga sola con aviso (Luis, 2026-11-13)
+- [ ] Paso 1 · `app/merge.mjs` con tests
+- [ ] Paso 2 · `GET /api/revision`, código `STALE`, base desde `papelera/`
+- [ ] Paso 3 · Comprobación periódica e incorporación sin conflictos
+- [ ] Paso 4 · Diálogo de conflictos
+- [ ] Paso 5 · Guardar con `STALE` y borrador recuperado
+- [ ] Paso 6 · `CHANGELOG.md`; prueba con dos servidores y Luis en sus dos Mac
+- [ ] Release 0.3.0 (con 003 y 004)
 
 ## 005 · Fusionar dos versiones desde el panel · por hacer (`specs/005-fusion-desde-panel/`)
 
