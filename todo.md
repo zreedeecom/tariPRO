@@ -30,9 +30,10 @@
 ## 004 · Cambios desde otro ordenador · aprobada, por implementar (`specs/004-fusionar-versiones/`)
 
 - [x] Spec y plan aprobados: dividida en 004/005, y sin conflictos se carga sola con aviso (Luis, 2026-11-13)
-- [ ] Paso 1 · `app/merge.mjs` con tests
+- [x] Paso 1 · `app/merge.mjs` con tests
 - [ ] Paso 2 · `GET /api/revision`, código `STALE`, base desde `papelera/`
 - [ ] Paso 3 · Comprobación periódica e incorporación sin conflictos
+  - Incorporar sola solo si no hay `conflicts` ni `errors`: una fusión sin conflictos puede dar un catálogo no válido (más de 4 acabados de proceso, todas las filas ocultas, familia agrupada con unidades distintas)
 - [ ] Paso 4 · Diálogo de conflictos
 - [ ] Paso 5 · Guardar con `STALE` y borrador recuperado
 - [ ] Paso 6 · `CHANGELOG.md`; prueba con dos servidores y Luis en sus dos Mac

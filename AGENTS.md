@@ -9,7 +9,7 @@ Tarifa profesional de impresión digital: costes, márgenes y precios de venta d
 
 ## Cómo funciona
 
-- Servidor Node local (`server.mjs`, solo `127.0.0.1`) y la interfaz en `public/`, sin build. Servidor y navegador comparten `app/model.mjs`.
+- Servidor Node local (`server.mjs`, solo `127.0.0.1`) y la interfaz en `public/`, sin build. Servidor y navegador comparten `app/model.mjs` y `app/merge.mjs`.
 - **Datos fuera del repo**: `current.json`, `versions/` (una instantánea inmutable por guardado) y `papelera/` (versiones borradas, nunca se vacía sola) en `IMPRESS_DATA_DIR`; los PDF, en `IMPRESS_EXPORT_DIR`. Por defecto `data/` y `exports/`, ignorados por git.
 - Primer arranque sin datos: `app/empty-catalog.json`.
 - El borrador vive en el `localStorage` del navegador, ligado al origen (`127.0.0.1:4173`): si cambia el puerto, se pierden los borradores.
@@ -18,7 +18,7 @@ Tarifa profesional de impresión digital: costes, márgenes y precios de venta d
 ## Stack y estructura
 
 - Node 22+, sin dependencias en tiempo de ejecución ni build. Solo de desarrollo: `electron` y `electron-builder`, con versión exacta.
-- `app/model.mjs` cálculo · `app/store.mjs` guardado atómico y versiones · `app/server.mjs` `startServer()` (lo usan `npm start` y Electron) · `app/http.mjs` API y estáticos · `app/pdf.mjs` PDF vectorial propio (Helvetica con métricas AFM, sin fuentes incrustadas).
+- `app/model.mjs` cálculo · `app/merge.mjs` fusión a tres bandas de catálogos (borrador y versión guardada en otro sitio) · `app/store.mjs` guardado atómico y versiones · `app/server.mjs` `startServer()` (lo usan `npm start` y Electron) · `app/http.mjs` API y estáticos · `app/pdf.mjs` PDF vectorial propio (Helvetica con métricas AFM, sin fuentes incrustadas).
 - `tests/` con `node --test`; `tests/fixtures/` es un catálogo de ejemplo con costes inventados.
 - `specs/NNN-nombre/`: spec + plan de cada funcionalidad.
 

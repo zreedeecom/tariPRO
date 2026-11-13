@@ -7,8 +7,8 @@ Estado actual del proyecto. Solo lo vigente; máximo ~50 líneas.
 - Repo nuevo (2026-11-12), sucesor de `~/Code/tarifa-pro-impress` (empezado con Codex). Se trajo solo el código; el historial, los originales y los análisis están en el archivo privado.
 - Los datos reales viven en `~/Dropbox/Apps/tariPRO` (copiados del repo antiguo el 2026-11-12) y se editan con la app instalada. En el repo no se editan tarifas reales.
 - Spec 001 (tarifa base): hecha. Spec 002 (escritorio): 0.2.0 publicada; datos reales ya en `~/Dropbox/Apps/tariPRO` y probados en los dos Mac. Falta: Windows con la carpeta real, README (paso 8) y que Luis borre el repo antiguo.
-- Spec 003 (borrar versiones a `papelera/`): hecha, en `main` y sin publicar. Spec 004 (cambios desde otro ordenador): aprobada, por implementar; empezar por el paso 1 de su plan. Spec 005 (fusión desde el panel): idea.
-- 50 tests: 48 públicos y 2 de paridad con el Maestro (solo con `TARIPRO_FIXTURES`).
+- Spec 003 (borrar versiones a `papelera/`): hecha, en `main` y sin publicar. Spec 004 (cambios desde otro ordenador): en curso en `feat/live-changes`; paso 1 (`app/merge.mjs`) hecho, sigue el paso 2. Spec 005 (fusión desde el panel): idea.
+- 64 tests: 62 públicos y 2 de paridad con el Maestro (solo con `TARIPRO_FIXTURES`).
 
 ## Decisiones vigentes
 

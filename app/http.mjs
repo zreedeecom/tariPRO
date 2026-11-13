@@ -5,7 +5,7 @@ import { validate } from './model.mjs';
 
 export function createHandler({ root, port, store, logo, exportsDirectory }) {
 const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.json': 'application/json; charset=utf-8', '.pdf': 'application/pdf' };
-const staticFiles = new Map([['/', 'public/index.html'], ['/app.mjs', 'public/app.mjs'], ['/styles.css', 'public/styles.css'], ['/model.mjs', 'app/model.mjs'], ['/assets/impress-logo.jpg', 'public/assets/impress-logo.jpg'], ['/favicon.svg', 'public/favicon.svg']]);
+const staticFiles = new Map([['/', 'public/index.html'], ['/app.mjs', 'public/app.mjs'], ['/styles.css', 'public/styles.css'], ['/model.mjs', 'app/model.mjs'], ['/merge.mjs', 'app/merge.mjs'], ['/assets/impress-logo.jpg', 'public/assets/impress-logo.jpg'], ['/favicon.svg', 'public/favicon.svg']]);
 async function body(request) { let bytes = 0; const chunks = []; for await (const chunk of request) { bytes += chunk.length; if (bytes > 2000000) { const error = new Error('El archivo supera los 2 MB.'); error.status = 413; throw error; } chunks.push(chunk); } try { return JSON.parse(Buffer.concat(chunks).toString()); } catch { const error = new Error('El contenido no es JSON válido.'); error.status = 400; throw error; } }
 return async (request, response) => {
   const send = (status, data, type = 'application/json; charset=utf-8', headers = {}) => { response.writeHead(status, { 'Content-Type': type, 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'Referrer-Policy': 'no-referrer', ...headers }); response.end(Buffer.isBuffer(data) || typeof data === 'string' ? data : JSON.stringify(data)); };
