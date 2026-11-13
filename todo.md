@@ -27,7 +27,7 @@
 - [x] Paso 2 · Botón y confirmación en el panel
 - [x] Luis: prueba en la app
 
-## 004 · Cambios desde otro ordenador · implementada, falta la prueba de Luis (`feat/live-changes`) (`specs/004-fusionar-versiones/`)
+## 004 · Cambios desde otro ordenador · en la 0.3.0, falta la prueba de Luis (`specs/004-fusionar-versiones/`)
 
 - [x] Spec y plan aprobados: dividida en 004/005, y sin conflictos se carga sola con aviso (Luis, 2026-11-13)
 - [x] Paso 1 · `app/merge.mjs` con tests
@@ -37,7 +37,7 @@
 - [x] Paso 5 · Guardar con `STALE` y borrador recuperado
 - [x] Paso 6 · `CHANGELOG.md`; prueba con dos servidores (Chrome sin interfaz, 11 casos, consola limpia)
 - [ ] Luis: prueba en sus dos Mac sobre una carpeta de prueba en Dropbox
-- [ ] Release 0.3.0 (con 003 y 004)
+- [x] Release 0.3.0 (con 003 y 004): etiqueta `v0.3.0`; Luis revisa y publica el borrador
 
 ## 005 · Fusionar dos versiones desde el panel · por hacer (`specs/005-fusion-desde-panel/`)
 

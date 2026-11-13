@@ -4,6 +4,10 @@ Formato: [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versionado
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-13
+
+Varios ordenadores sobre la misma carpeta de datos, sin pisarse.
+
 ### Añadido
 - Borrar versiones desde «Versiones», salvo la vigente. Van a la carpeta `papelera/` de los datos, desde donde se pueden rescatar.
 - Cambios desde otro ordenador: si se guarda una versión en otro sitio con la app abierta, aparece en segundos. Sin borrador, se carga; con borrador, sus cambios entran en él y los tuyos se quedan, con un aviso de lo que ha entrado.
