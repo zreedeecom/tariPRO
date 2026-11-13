@@ -5,13 +5,14 @@ import vm from 'node:vm';
 import fs from 'node:fs';
 import {webcrypto} from 'node:crypto';
 import * as model from '../app/model.mjs';
-const source=fs.readFileSync(new URL('../public/app.mjs',import.meta.url),'utf8').replace(/^import[^\n]+\n/,'');
+import * as merge from '../app/merge.mjs';
+const source=fs.readFileSync(new URL('../public/app.mjs',import.meta.url),'utf8').replace(/^import[^\n]+\n/gm,'');
 const seed=JSON.parse(fs.readFileSync(new URL('./fixtures/sample-catalog.json',import.meta.url)));
-async function harness(recovered=null,key='impress-tariff-draft-v2'){
+async function harness(recovered=null,key='impress-tariff-draft-v2',initial=seed){
  const elements=new Map(); const storage=new Map(); if(recovered)storage.set(key,JSON.stringify(recovered));
- const element=selector=>{if(!elements.has(selector))elements.set(selector,{dataset:{},value:'',innerHTML:'',textContent:'',hidden:false,disabled:false,classList:{toggle(){}},setAttribute(){},removeAttribute(){},listeners:{},addEventListener(name,callback){this.listeners[name]=callback;},showModal(){this.open=true;},close(){this.open=false;},click(){},focus(){},checkValidity(){return true;}});return elements.get(selector);};
- const context=vm.createContext({...model,structuredClone,Intl,JSON,Number,Math,Set,Map,Date,Array,Blob,URL,crypto:webcrypto,console,setTimeout,clearTimeout,location:{hash:''},history:{replaceState(){}},localStorage:{getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value),removeItem:key=>storage.delete(key)},window:{addEventListener(){}},document:{querySelector:selector=>selector==='[aria-invalid="true"]'?null:element(selector),querySelectorAll:()=>[],addEventListener(){},createElement:()=>element('created'),getElementById:element},fetch:async()=>({ok:true,headers:{get:()=> 'application/json'},json:async()=>structuredClone(seed)})});
- vm.runInContext(source+'\nglobalThis.ui={getDraft:()=>draft,setDraft:s=>{draft=s;selectedId=s.materials[0]?.id;},getBusy:()=>busy,assertValid,handleBinding,action,renderTariff,renderFinishes,renderSettings,renderSimulator,renderDocument,comparison};',context);
+ const element=selector=>{if(!elements.has(selector))elements.set(selector,{dataset:{},value:'',innerHTML:'',textContent:'',hidden:false,disabled:false,classList:{toggle(){}},setAttribute(){},removeAttribute(){},listeners:{},addEventListener(name,callback){this.listeners[name]=callback;},showModal(){this.open=true;},close(){this.open=false;},click(){},focus(){},querySelectorAll(){return [];},checkValidity(){return true;}});return elements.get(selector);};
+ const context=vm.createContext({...model,...merge,setInterval(){},structuredClone,Intl,JSON,Number,Math,Set,Map,Date,Array,Blob,URL,crypto:webcrypto,console,setTimeout,clearTimeout,location:{hash:''},history:{replaceState(){}},localStorage:{getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value),removeItem:key=>storage.delete(key)},window:{addEventListener(){}},document:{visibilityState:'visible',querySelector:selector=>['[aria-invalid="true"]','dialog[open]'].includes(selector)?null:element(selector),querySelectorAll:()=>[],addEventListener(){},createElement:()=>element('created'),getElementById:element},fetch:async()=>({ok:true,headers:{get:()=> 'application/json'},json:async()=>structuredClone(initial)})});
+ vm.runInContext(source+'\nglobalThis.ui={getDraft:()=>draft,getSaved:()=>saved,getMerging:()=>merging,checkRemote,setDraft:s=>{draft=s;selectedId=s.materials[0]?.id;},getBusy:()=>busy,assertValid,handleBinding,action,renderTariff,renderFinishes,renderSettings,renderSimulator,renderDocument,comparison};',context);
  await new Promise(resolve=>setImmediate(resolve));return {ui:context.ui,element,context,storage};
 }
 const input=(path,value)=>({dataset:{bind:path},value,tagName:'SELECT',setAttribute(){},removeAttribute(){},checkValidity(){return true;}});
@@ -60,4 +61,72 @@ test('A draft left in the v1 format is migrated before it can be recovered',asyn
  const legacy=JSON.parse(fs.readFileSync(new URL('./fixtures/sample-catalog-v1.json',import.meta.url)));legacy.materials[0].cost=9;
  const {ui,element}=await harness({baseRevision:'initial',state:legacy},'impress-tariff-draft-v1');
  await element('#recover-draft').onclick();const draft=ui.getDraft();assert.equal(draft.schemaVersion,2);assert.equal(draft.materials[0].cost,9);assert.equal(model.validate(draft).length,0);
+});
+
+// Another computer saves while this one is open: GET /api/revision and /api/state answer with their version.
+const json=data=>({ok:true,headers:{get:()=> 'application/json'},json:async()=>structuredClone(data)});
+function serve(context,routes){context.fetch=async(url,options={})=>{const route=routes[`${options.method||'GET'} ${url}`];if(!route)throw new Error(`Unexpected ${url}`);return typeof route==='function'?route(options):json(route);};}
+const theirsWith=(change,label='Desde el otro Mac')=>{const state=structuredClone(seed);change(state);return {...state,revision:'rev-theirs',versionLabel:label};};
+test('A version saved elsewhere loads by itself when there is no draft',async()=>{
+ const {ui,context,element}=await harness();const theirs=theirsWith(s=>{s.materials[1].cost=4;});
+ serve(context,{'GET /api/revision':{revision:'rev-theirs'},'GET /api/state':theirs});await ui.checkRemote();
+ assert.equal(ui.getSaved().revision,'rev-theirs');assert.equal(ui.getDraft().materials[1].cost,4);assert.equal(JSON.stringify(ui.getDraft()),JSON.stringify(ui.getSaved()));
+ assert.match(element('#toast').textContent,/Se ha cargado «Desde el otro Mac»/);
+});
+test('Without conflicts their changes come into the draft and mine stay',async()=>{
+ const {ui,context,element,storage}=await harness();const draft=ui.getDraft();draft.materials[0].cost=3;ui.setDraft(draft);
+ const theirs=theirsWith(s=>{s.materials[1].cost=4;s.materials.push({...structuredClone(s.materials[0]),id:'material-new',name:'Nuevo suyo',rolls:[]});});
+ serve(context,{'GET /api/revision':{revision:'rev-theirs'},'GET /api/state':theirs});await ui.checkRemote();
+ assert.equal(ui.getSaved().revision,'rev-theirs');assert.deepEqual([ui.getDraft().materials[0].cost,ui.getDraft().materials[1].cost,ui.getDraft().materials.at(-1).name],[3,4,'Nuevo suyo']);
+ assert.equal(element('#toast').textContent,'Entran 1 material nuevo y 1 cambio de «Desde el otro Mac», guardada desde otro ordenador. Tus cambios siguen en el borrador.');
+ assert.equal(JSON.parse(storage.get('impress-tariff-draft-v2')).baseRevision,'rev-theirs');
+});
+test('A conflict asks with a banner and keeps the draft untouched until resolved',async()=>{
+ const {ui,context,element}=await harness();const draft=ui.getDraft();draft.materials[0].cost=3;ui.setDraft(draft);
+ const theirs=theirsWith(s=>{s.materials[0].cost=4;s.materials[1].cost=5;});
+ serve(context,{'GET /api/revision':{revision:'rev-theirs'},'GET /api/state':theirs});await ui.checkRemote();
+ assert.equal(ui.getSaved().revision,'initial');assert.equal(ui.getDraft().materials[0].cost,3);assert.equal(element('#remote-banner').hidden,false);assert.match(element('#remote-banner').innerHTML,/choca con tu borrador/);
+ element('#remote-resolve').onclick();assert.equal(element('#merge-dialog').open,true);assert.match(element('#merge-list').innerHTML,/Lo suyo<\/strong> 4 €/);
+ ui.getMerging().choices['material:material-1:cost']='theirs';element('#merge-form').listeners.submit({preventDefault(){}});
+ assert.equal(ui.getSaved().revision,'rev-theirs');assert.deepEqual([ui.getDraft().materials[0].cost,ui.getDraft().materials[1].cost],[4,5]);assert.equal(element('#remote-banner').hidden,true);
+});
+test('«Más tarde» stops asking for that version, not for a newer one',async()=>{
+ const {ui,context,element}=await harness();const draft=ui.getDraft();draft.materials[0].cost=3;ui.setDraft(draft);
+ let state=theirsWith(s=>{s.materials[0].cost=4;});let reads=0;
+ serve(context,{'GET /api/revision':()=>json({revision:state.revision}),'GET /api/state':()=>{reads++;return json(state);}});
+ await ui.checkRemote();element('#remote-later').onclick();assert.equal(element('#remote-banner').hidden,true);
+ await ui.checkRemote();assert.equal(reads,1);assert.equal(element('#remote-banner').hidden,true);
+ state={...state,revision:'rev-newer'};await ui.checkRemote();assert.equal(reads,2);assert.equal(element('#remote-banner').hidden,false);
+});
+test('Checks never touch the draft while typing or when the folder cannot be read',async()=>{
+ const {ui,context,element}=await harness();const theirs=theirsWith(s=>{s.materials[1].cost=4;});
+ serve(context,{'GET /api/revision':{revision:'rev-theirs'},'GET /api/state':theirs});
+ context.document.activeElement={matches:()=>true};await ui.checkRemote();assert.equal(ui.getSaved().revision,'initial');
+ context.document.activeElement=null;context.fetch=async()=>{throw new Error('ENOENT');};await ui.checkRemote();assert.equal(ui.getSaved().revision,'initial');assert.equal(element('#error-banner').textContent,'');
+});
+test('Saving after someone else saved brings their version in instead of failing',async()=>{
+ const {ui,context,element}=await harness();const draft=ui.getDraft();draft.materials[0].cost=3;ui.setDraft(draft);
+ const theirs=theirsWith(s=>{s.materials[1].cost=4;});
+ serve(context,{'PUT /api/state':()=>({ok:false,status:409,json:async()=>({error:'Stale',code:'STALE'})}),'GET /api/revision':{revision:'rev-theirs'},'GET /api/state':theirs});
+ await element('#save-form').listeners.submit({preventDefault(){}});await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(ui.getSaved().revision,'rev-theirs');assert.deepEqual([ui.getDraft().materials[0].cost,ui.getDraft().materials[1].cost],[3,4]);
+ assert.match(element('#toast').textContent,/Revisa y vuelve a guardar/);assert.equal(element('#error-banner').textContent,'');
+});
+test('A recovered draft made on an older version is merged with the current one',async()=>{
+ const base=structuredClone(seed);const recovered=structuredClone(seed);recovered.materials[0].cost=9;
+ const current=theirsWith(s=>{s.materials[1].cost=4;});
+ const {ui,context,element}=await harness({baseRevision:'initial',state:recovered},undefined,current);
+ serve(context,{'GET /api/version/initial':base});
+ assert.match(element('#recovery-banner').innerHTML,/Recuperar e incorporar/);
+ await element('#recover-draft').onclick();
+ assert.deepEqual([ui.getDraft().materials[0].cost,ui.getDraft().materials[1].cost],[9,4]);assert.equal(ui.getSaved().revision,'rev-theirs');
+});
+test('A recovered draft whose starting version is gone asks for every difference',async()=>{
+ const recovered=structuredClone(seed);recovered.materials[0].cost=9;const current=theirsWith(s=>{s.materials[1].cost=4;});
+ const {ui,context,element}=await harness({baseRevision:'deleted-for-good',state:recovered},undefined,current);
+ serve(context,{'GET /api/version/deleted-for-good':()=>({ok:false,status:404,json:async()=>({error:'No se encuentra.'})})});
+ await element('#recover-draft').onclick();assert.equal(element('#merge-dialog').open,true);
+ assert.deepEqual(ui.getMerging() && ui.getDraft().materials[0].cost,2.1,'nothing changes until applied');
+ element('#merge-form').listeners.submit({preventDefault(){}});
+ assert.deepEqual([ui.getDraft().materials[0].cost,ui.getDraft().materials[1].cost],[9,seed.materials[1].cost],'mine wins by default');assert.equal(element('#recovery-banner').hidden,true);
 });

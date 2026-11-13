@@ -1,4 +1,5 @@
 import { clone, currency, number, round, unitLabel, priceRows, basePrice, baseCost, compatibleFinishes, suggestedSupplement, simulate, validate, materialize, migrate } from '/model.mjs';
+import { mergeCatalogs } from '/merge.mjs';
 
 const $ = selector => document.querySelector(selector);
 const escape = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
@@ -21,7 +22,7 @@ const storageKey = 'impress-tariff-draft-v2', legacyStorageKey = 'impress-tariff
 const uid = prefix => `${prefix}-${crypto.randomUUID().slice(0, 10)}`;
 const isDirty = () => JSON.stringify(draft) !== JSON.stringify(saved);
 function error(message) { $('#error-banner').textContent = message; $('#error-banner').hidden = !message; }
-function toast(message) { $('#toast').textContent = message; $('#toast').hidden = false; clearTimeout(toast.timer); toast.timer = setTimeout(() => { $('#toast').hidden = true; }, 5000); }
+function toast(message, duration = 5000) { $('#toast').textContent = message; $('#toast').hidden = false; clearTimeout(toast.timer); toast.timer = setTimeout(() => { $('#toast').hidden = true; }, duration); }
 async function api(url, options = {}) {
   const response = await fetch(url, { ...options, headers: { 'Content-Type': 'application/json', ...options.headers } });
   if (!response.ok) { const payload = await response.json().catch(() => ({})); throw Object.assign(new Error(payload.error || `No se pudo completar la operación (${response.status}).`), { code: payload.code }); }
@@ -288,6 +289,7 @@ document.addEventListener('input', event => {
 });
 document.addEventListener('change', event => {
   const target = event.target;
+  if (target.closest('#merge-form')) { merging.choices[target.name] = target.value; refreshMerge(); return; }
   if (target.dataset.bind && target.tagName === 'SELECT') handleBinding(target);
   if (target.id === 'family-filter') { family = target.value; $('#catalog-list').innerHTML = renderCatalogTable(); }
   if (target.id === 'show-archived') { showArchived = target.checked; $('#catalog-list').innerHTML = renderCatalogTable(); }
@@ -321,11 +323,14 @@ $('#export-button').addEventListener('click', () => { try { assertValid(); if (i
 $('#backup-button').addEventListener('click', () => action('backup', {}).catch(exception => error(exception.message)));
 $('#save-form').addEventListener('submit', async event => {
   event.preventDefault(); if (busy) return; busy = true; $('#save-form button[type=submit]').disabled = true; $('#save-dialog [data-close]').disabled = true; $('#main').inert = true;
+  let stale = false;
   try {
     assertValid(); const snapshot = clone(draft); const current = await api('/api/state', { method: 'PUT', body: JSON.stringify({ state: snapshot, expectedRevision: saved.revision, label: $('#version-label').value }) });
     saved = current; draft = clone(current); persistDraft(); $('#save-dialog').close(); render(); toast('Versión guardada. La anterior sigue disponible en el historial.'); if (exportAfterSave) await exportVersion(saved.revision);
-  } catch (exception) { $('#save-dialog').close(); error(exception.message); }
+  } catch (exception) { $('#save-dialog').close(); if (exception.code === 'STALE') stale = true; else error(exception.message); }
   finally { busy = false; exportAfterSave = false; $('#save-form button[type=submit]').disabled = false; $('#save-dialog [data-close]').disabled = false; $('#main').inert = false; updateStatus(); }
+  // Someone saved elsewhere first: bring their version into the draft, then review and save again.
+  if (stale) checkRemote({ manual: true });
 });
 $('#save-dialog').addEventListener('cancel', event => { if (busy) event.preventDefault(); });
 $('#import-file').addEventListener('change', async event => {
@@ -335,6 +340,113 @@ $('#import-file').addEventListener('change', async event => {
     if (await confirmAction('Importar catálogo como borrador', `Se cargarán ${candidate.materials.length} materiales. ${isDirty() ? 'Sustituirá tus cambios sin guardar.' : 'La versión guardada se mantendrá.'}`, 'Importar borrador')) { draft = candidate; selectedId = draft.materials[0]?.id; view = 'tariff'; changed(); render(); }
   } catch (exception) { error(exception.message); } finally { event.target.value = ''; }
 });
+// Versions saved elsewhere (another computer or window) come into the draft by a three-way merge; only conflicts ask.
+let remote = null, deferredRevision = null, checking = false, merging = null;
+const plural = (count, one, many) => count === 1 ? `1 ${one}` : `${count} ${many}`;
+const listText = items => items.length > 1 ? `${items.slice(0, -1).join(', ')} y ${items.at(-1)}` : items[0] ?? '';
+function incomingText(theirs, { added, removed, changed: edits }) {
+  const count = scope => added.filter(item => item.scope === scope).length;
+  const parts = [count('material') && plural(count('material'), 'material nuevo', 'materiales nuevos'), count('finish') && plural(count('finish'), 'acabado nuevo', 'acabados nuevos'),
+    removed.length && plural(removed.length, 'acabado quitado', 'acabados quitados'), edits.length && plural(edits.length, 'cambio', 'cambios')].filter(Boolean);
+  const verb = added.length + removed.length + edits.length === 1 ? 'Entra' : 'Entran';
+  return `${parts.length ? `${verb} ${listText(parts)} de «${theirs.versionLabel}», guardada` : `Se ha incorporado «${theirs.versionLabel}», guardada`} desde otro ordenador. Tus cambios siguen en el borrador.`;
+}
+// Never swap the state under the user's hands: wait while saving, in a dialog, with a field in error or the cursor in a field.
+const canMerge = () => !busy && !invalidFields.size && !document.querySelector('dialog[open]') && !document.activeElement?.matches('input, textarea, select');
+function hideRemote() { remote = null; $('#remote-banner').hidden = true; }
+// The draft is rebased on `theirs`: it becomes the saved version and the merge result the draft.
+function rebase(theirs, state) { saved = theirs; draft = state; hideRemote(); changed(); render(); }
+async function checkRemote({ manual = false } = {}) {
+  if (!saved || (!manual && (checking || document.visibilityState !== 'visible'))) return;
+  checking = true;
+  try {
+    const { revision } = await api('/api/revision');
+    if (revision === saved.revision || (!manual && !canMerge())) return;
+    if (!manual && isDirty() && [deferredRevision, remote?.theirs.revision].includes(revision)) return;
+    const theirs = await api('/api/state');
+    if (theirs.revision === saved.revision || (!manual && !canMerge())) return;
+    if (!isDirty()) { rebase(theirs, clone(theirs)); toast(`Se ha cargado «${theirs.versionLabel}», guardada desde otro ordenador.`, 9000); return; }
+    const result = mergeCatalogs(saved, draft, theirs);
+    if (!result.conflicts.length && !result.errors.length) { rebase(theirs, result.state); toast(`${incomingText(theirs, result.summary)}${manual ? ' Revisa y vuelve a guardar.' : ''}`, 9000); return; }
+    remote = { base: saved, theirs };
+    if (manual) { openMerge(remote); return; }
+    const banner = $('#remote-banner'), label = escape(theirs.versionLabel); banner.hidden = false;
+    banner.innerHTML = result.conflicts.length
+      ? `Se ha guardado «${label}» desde otro ordenador y choca con tu borrador. <button class="button small" id="remote-resolve">Resolver</button><button class="text-button" id="remote-later">Más tarde</button>`
+      : `Se ha guardado «${label}» desde otro ordenador. Al juntarla con tu borrador quedan datos que revisar. <button class="button small" id="remote-resolve">Revisar</button><button class="text-button" id="remote-later">Más tarde</button>`;
+    $('#remote-resolve').onclick = () => openMerge(remote);
+    $('#remote-later').onclick = () => { deferredRevision = remote.theirs.revision; hideRemote(); };
+  } catch (exception) { if (manual) error(`Otra versión se guardó antes que la tuya y no se ha podido leer. ${exception.message}`); }
+  finally { checking = false; }
+}
+setInterval(() => checkRemote(), 5000);
+document.addEventListener('visibilitychange', () => checkRemote());
+window.addEventListener('focus', () => checkRemote());
+
+const scopeTitles = { material: 'Material', finish: 'Acabado', settings: 'Costes y descuentos', document: 'Documento A4', catalog: 'Catálogo' };
+function formatValue(field, value) {
+  const key = String(field).split('.')[0];
+  if (value === undefined || value === '') return '(vacío)';
+  if (value === null) return key === 'inkCost' ? 'La general' : 'Pendiente';
+  if (key === 'pricing') return value.mode === 'fixed' ? `Precio fijo ${currency(value.price)}` : `${value.mode === 'margin' ? 'Margen' : 'Recargo'} ${number(value.value * 100)} %`;
+  if (['supplements', 'cost', 'supplement', 'inkCost', 'setupCost'].includes(key)) return `${number(value, 4)} €`;
+  if (key === 'active') return value ? 'Activo' : 'Archivado';
+  if (key === 'unit') return value === 'm2' ? 'm²' : 'ud.';
+  if (key === 'kind') return value === 'laminate' ? 'Laminado' : 'Proceso';
+  if (key === 'wasteLength') return `${number(value)} m`;
+  if (key === 'rolls') return value.map(roll => `${number(roll.width)} m${roll.cost === null ? '' : ` (${number(roll.cost, 4)} €)`}`).join(', ') || 'Sin bobinas';
+  if (key === 'tiers') return value.map(tier => `desde ${number(tier.minimum)}: −${number(tier.rate * 100)} %`).join(' · ');
+  if (key === 'groups') return value.map(group => group.title).join(', ') || 'Ninguno';
+  if (Array.isArray(value)) return value.join(' · ') || '(vacío)';
+  return typeof value === 'number' ? number(value, 4) : String(value);
+}
+function mergeItem(conflict) {
+  const whole = conflict.field === null;
+  const option = side => {
+    const value = conflict[side], text = whole ? (value ? `Mantenerlo con ${side === 'mine' ? 'tus' : 'sus'} cambios` : 'Quitarlo') : formatValue(conflict.field, value);
+    const price = conflict.scope === 'material' ? `<small data-merge-key="${escape(conflict.key)}" data-merge-side="${side}"></small>` : '';
+    return `<label class="merge-option"><input type="radio" name="${escape(conflict.key)}" value="${side}" ${side === 'mine' ? 'checked' : ''}><span><strong>${side === 'mine' ? 'Lo tuyo' : 'Lo suyo'}</strong> ${escape(text)}${price}</span></label>`;
+  };
+  return `<div class="merge-item"><div class="merge-field">${escape(conflict.label)}${whole ? '' : `<small>Antes: ${escape(formatValue(conflict.field, conflict.base))}</small>`}</div><div class="merge-options">${option('mine')}${option('theirs')}</div></div>`;
+}
+const mergeResult = (extra = {}) => mergeCatalogs(merging.base, merging.mine, merging.theirs, { ...merging.choices, ...extra });
+function openMerge({ base, theirs, mine = draft, intro, after }) {
+  if (invalidFields.size) { error('Corrige el campo señalado antes de incorporar los cambios.'); return; }
+  merging = { base, mine: clone(mine), theirs, after, choices: {} };
+  const { conflicts } = mergeResult(), groups = new Map();
+  for (const conflict of conflicts) {
+    const key = `${conflict.scope}:${conflict.id ?? ''}`;
+    if (!groups.has(key)) groups.set(key, { title: conflict.id ? `${scopeTitles[conflict.scope]} · ${conflict.name}` : scopeTitles[conflict.scope] ?? conflict.scope, items: [] });
+    groups.get(key).items.push(conflict);
+  }
+  $('#merge-intro').textContent = intro ?? `«${theirs.versionLabel}» se guardó desde otro ordenador. ${conflicts.length ? 'Elige qué conservar donde no coincide con tu borrador; lo demás se junta solo.' : 'No hay nada que elegir.'}`;
+  $('#merge-list').innerHTML = [...groups.values()].map(group => `<section class="merge-group"><h3>${escape(group.title)}</h3>${group.items.map(mergeItem).join('')}</section>`).join('');
+  $('#merge-dialog').querySelectorAll('[data-merge-all]').forEach(button => { button.hidden = !conflicts.length; });
+  refreshMerge(); $('#merge-dialog').showModal();
+}
+// Each material option shows the base price it leads to, given the other choices.
+function refreshMerge() {
+  document.querySelectorAll('[data-merge-key]').forEach(item => {
+    const conflict = { key: item.dataset.mergeKey, id: item.dataset.mergeKey.split(':')[1] };
+    try { const { state } = mergeResult({ [conflict.key]: item.dataset.mergeSide }), material = state.materials.find(entry => entry.id === conflict.id); item.textContent = material ? `Precio base: ${currency(basePrice(state, material))}` : ''; }
+    catch { item.textContent = ''; }
+  });
+  const { errors } = mergeResult(); $('#merge-errors').hidden = !errors.length;
+  $('#merge-errors').textContent = `Quedarán datos que revisar antes de guardar:\n${errors.join('\n')}`;
+}
+$('#merge-dialog').addEventListener('click', event => {
+  const all = event.target.closest('[data-merge-all]'); if (!all) return;
+  $('#merge-list').querySelectorAll(`input[value="${all.dataset.mergeAll}"]`).forEach(input => { input.checked = true; merging.choices[input.name] = input.value; });
+  refreshMerge();
+});
+$('#merge-form').addEventListener('submit', event => {
+  event.preventDefault();
+  const result = mergeResult(), { theirs, after } = merging;
+  $('#merge-dialog').close(); rebase(theirs, result.state); after?.();
+  if (result.errors.length) error(`Cambios incorporados al borrador. Antes de guardar, revisa:\n${result.errors.join('\n')}`);
+  else toast('Cambios incorporados al borrador. Revisa y guarda cuando esté listo.');
+});
+$('#merge-dialog').addEventListener('close', () => { merging = null; });
 window.addEventListener('beforeunload', event => { if (draft && (isDirty() || invalidFields.size || busy)) { event.preventDefault(); event.returnValue = ''; } });
 // Read by the desktop app before changing the data folder: a draft (current or waiting to be recovered) belongs to this catalog.
 window.hasUnsavedChanges = () => { let stored = null; try { stored = localStorage.getItem(storageKey); } catch {} return Boolean(draft && (isDirty() || invalidFields.size || busy)) || stored !== null; };
@@ -346,10 +458,18 @@ async function initialize() {
     render();
     if (recoveredDraft?.state && JSON.stringify(recoveredDraft.state) !== JSON.stringify(saved)) {
       const banner = $('#recovery-banner'); banner.hidden = false;
-      banner.innerHTML = `Hay un borrador de una sesión anterior.${recoveredDraft.baseRevision !== saved.revision ? ' La versión guardada ha cambiado desde entonces; revisa antes de guardar.' : ''} <button class="button small" id="recover-draft">Recuperar borrador</button><button class="text-button" id="forget-draft">Descartar</button>`;
+      const older = recoveredDraft.baseRevision !== saved.revision;
+      // The label is set now; whether to merge is decided on click, since the saved version may change meanwhile.
+      banner.innerHTML = `Hay un borrador de una sesión anterior.${older ? ` Se hizo sobre otra versión: al recuperarlo se le incorporan los cambios de «${escape(saved.versionLabel)}».` : ''} <button class="button small" id="recover-draft">${older ? 'Recuperar e incorporar' : 'Recuperar borrador'}</button><button class="text-button" id="forget-draft">Descartar</button>`;
       $('#recover-draft').onclick = async () => {
         if ((isDirty() || invalidFields.size) && !await confirmAction('Sustituir el borrador actual', 'Has realizado cambios en esta sesión. Recuperar el borrador anterior los sustituirá.', 'Recuperar anterior')) return;
-        invalidFields.clear(); draft = recoveredDraft.state; selectedId = draft.materials[0]?.id; banner.hidden = true; changed(); render(); toast('Borrador recuperado. Revisa los cambios antes de guardar.');
+        invalidFields.clear(); const done = () => { banner.hidden = true; recoveredDraft = null; };
+        if (recoveredDraft.baseRevision === saved.revision) { draft = recoveredDraft.state; selectedId = draft.materials[0]?.id; done(); changed(); render(); toast('Borrador recuperado. Revisa los cambios antes de guardar.'); return; }
+        // Its starting version may be in papelera/; if it is gone, every difference becomes a choice.
+        const base = await api(`/api/version/${recoveredDraft.baseRevision}`).catch(() => ({ settings: {}, document: {}, materials: [], finishes: [] }));
+        const result = mergeCatalogs(base, recoveredDraft.state, saved);
+        if (result.conflicts.length || result.errors.length) { openMerge({ base, mine: recoveredDraft.state, theirs: saved, after: done, intro: `Tu borrador anterior se hizo sobre otra versión. Elige qué conservar donde no coincide con «${saved.versionLabel}»; lo demás se junta solo.` }); return; }
+        rebase(saved, result.state); done(); toast(`Borrador recuperado con los cambios de «${saved.versionLabel}». Revisa antes de guardar.`);
       };
       $('#forget-draft').onclick = () => { persistDraft(); banner.hidden = true; recoveredDraft = null; };
     }

@@ -18,6 +18,7 @@ return async (request, response) => {
       const file = path.join(root, staticFiles.get(url.pathname)); return send(200, await fs.readFile(file), types[path.extname(file)], { 'Content-Security-Policy': "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-src 'self' blob:; object-src 'self' blob:; base-uri 'none'; frame-ancestors 'none'" });
     }
     if (request.method === 'GET' && url.pathname === '/api/state') return send(200, await store.read());
+    if (request.method === 'GET' && url.pathname === '/api/revision') return send(200, await store.revision());
     if (request.method === 'GET' && url.pathname === '/api/history') return send(200, await store.history());
     if (request.method === 'GET' && url.pathname.startsWith('/api/version/')) return send(200, await store.version(url.pathname.split('/').at(-1)));
     if (request.method === 'DELETE' && url.pathname.startsWith('/api/version/')) { await store.remove(url.pathname.split('/').at(-1)); return send(200, { ok: true }); }

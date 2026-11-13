@@ -1,6 +1,6 @@
 # 004 · Cambios desde otro ordenador
 
-Estado: **aprobada**, con su plan (Luis, 2026-11-13). Por implementar.
+Estado: **implementada** en `feat/live-changes` (2026-11-13); falta la prueba de Luis en sus dos Mac.
 
 ## Qué
 
@@ -43,6 +43,9 @@ Con los datos en Dropbox, dos personas (o Luis en dos ordenadores) pueden editar
 
 - Dividida: 004 = detectar e incorporar al borrador, sin cambio de formato; 005 = fusión desde el panel, con `schemaVersion` 3 (Luis, 2026-11-13).
 - Sin conflictos, los cambios del otro ordenador se cargan solos con un aviso, tengas o no cambios propios. Solo se pregunta si hay conflictos (Luis, 2026-11-13).
+- Los suplementos por material son parte de su acabado: quitar un acabado en un lado y cambiar uno de sus suplementos en el otro es un conflicto «mantener / quitar». Si se mantiene, vuelve con sus suplementos (Luis, 2026-11-13).
+- Una fusión sin conflictos que deja el catálogo no válido (p. ej. más de 4 acabados de proceso en un material) no se incorpora sola: se avisa con «Revisar» (2026-11-13).
+- Borrador recuperado cuya versión de partida ya no existe: cada campo distinto es una elección; los materiales y acabados que solo están en un lado entran sin preguntar (2026-11-13).
 
 ## Plan
 

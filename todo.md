@@ -27,16 +27,16 @@
 - [x] Paso 2 · Botón y confirmación en el panel
 - [x] Luis: prueba en la app
 
-## 004 · Cambios desde otro ordenador · aprobada, por implementar (`specs/004-fusionar-versiones/`)
+## 004 · Cambios desde otro ordenador · implementada, falta la prueba de Luis (`feat/live-changes`) (`specs/004-fusionar-versiones/`)
 
 - [x] Spec y plan aprobados: dividida en 004/005, y sin conflictos se carga sola con aviso (Luis, 2026-11-13)
 - [x] Paso 1 · `app/merge.mjs` con tests
-- [ ] Paso 2 · `GET /api/revision`, código `STALE`, base desde `papelera/`
-- [ ] Paso 3 · Comprobación periódica e incorporación sin conflictos
-  - Incorporar sola solo si no hay `conflicts` ni `errors`: una fusión sin conflictos puede dar un catálogo no válido (más de 4 acabados de proceso, todas las filas ocultas, familia agrupada con unidades distintas)
-- [ ] Paso 4 · Diálogo de conflictos
-- [ ] Paso 5 · Guardar con `STALE` y borrador recuperado
-- [ ] Paso 6 · `CHANGELOG.md`; prueba con dos servidores y Luis en sus dos Mac
+- [x] Paso 2 · `GET /api/revision`, código `STALE`, base desde `papelera/`
+- [x] Paso 3 · Comprobación periódica e incorporación sin conflictos (solo sola si no hay `conflicts` ni `errors`)
+- [x] Paso 4 · Diálogo de conflictos
+- [x] Paso 5 · Guardar con `STALE` y borrador recuperado
+- [x] Paso 6 · `CHANGELOG.md`; prueba con dos servidores (Chrome sin interfaz, 11 casos, consola limpia)
+- [ ] Luis: prueba en sus dos Mac sobre una carpeta de prueba en Dropbox
 - [ ] Release 0.3.0 (con 003 y 004)
 
 ## 005 · Fusionar dos versiones desde el panel · por hacer (`specs/005-fusion-desde-panel/`)

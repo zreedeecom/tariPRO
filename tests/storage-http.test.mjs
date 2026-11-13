@@ -18,7 +18,14 @@ test('Snapshots survive restart, preserve previous data and reject stale writes'
  const {dir,store}=await fixture(t);const first=await store.read();const changed=structuredClone(first);changed.materials[0].cost*=1.05;
  const next=await store.save(changed,'initial','Coste +5%');assert.equal(next.materials[0].price,15.22);assert.equal((await store.version('initial')).materials[0].price,15);
  const reopened=new CatalogStore(dir,path.join(root,'tests/fixtures/sample-catalog.json'));await reopened.initialize();assert.equal((await reopened.read()).revision,next.revision);
- await assert.rejects(store.save(changed,'initial','Stale'),error=>error.status===409);
+ await assert.rejects(store.save(changed,'initial','Stale'),error=>error.status===409&&error.code==='STALE');
+});
+test('The current revision is cheap to poll and a stale save answers STALE',async t=>{
+ const {store,request}=await fixture(t);const state=await store.read();
+ assert.deepEqual((await request('/api/revision')).json(),{revision:'initial',versionLabel:state.versionLabel,savedAt:state.savedAt});
+ const next=await store.save(state,'initial','Desde otro ordenador');
+ assert.deepEqual((await request('/api/revision')).json(),{revision:next.revision,versionLabel:'Desde otro ordenador',savedAt:next.savedAt});
+ const stale=await request('/api/state',{method:'PUT',payload:{state,expectedRevision:'initial'}});assert.equal(stale.status,409);assert.equal(stale.json().code,'STALE');
 });
 test('Concurrent saves cannot overwrite each other',async t=>{const {store}=await fixture(t);const state=await store.read();const outcomes=await Promise.allSettled([store.save(state,'initial','A'),store.save(state,'initial','B')]);assert.equal(outcomes.filter(item=>item.status==='fulfilled').length,1);assert.equal(outcomes.filter(item=>item.status==='rejected').length,1);});
 test('HTTP routes serve the app and protect internal project files',async t=>{
@@ -89,4 +96,6 @@ test('Deleting a version moves it untouched to papelera/ and never the current o
  const again=await request(`/api/version/${first.revision}`,{method:'DELETE'});assert.equal(again.status,404);assert.match(again.json().error,/ya no existe/);
  const vigente=await request(`/api/version/${second.revision}`,{method:'DELETE'});assert.equal(vigente.status,409);await read(`versions/${second.revision}.json`);
  assert.equal((await request('/api/version/..%2Fcurrent',{method:'DELETE'})).status,400);
+ const deleted=await request(`/api/version/${first.revision}`);assert.equal(deleted.status,200,'a deleted version is still readable as a merge base');assert.equal(deleted.json().versionLabel,'Primera');
+ assert.equal((await request('/api/version/missing')).status,404);assert.equal(vigente.json().code,undefined);
 });

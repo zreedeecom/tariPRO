@@ -6,6 +6,10 @@ Formato: [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Versionado
 
 ### Añadido
 - Borrar versiones desde «Versiones», salvo la vigente. Van a la carpeta `papelera/` de los datos, desde donde se pueden rescatar.
+- Cambios desde otro ordenador: si se guarda una versión en otro sitio con la app abierta, aparece en segundos. Sin borrador, se carga; con borrador, sus cambios entran en él y los tuyos se quedan, con un aviso de lo que ha entrado.
+- Si los dos habéis cambiado lo mismo de forma distinta, un aviso con «Resolver» deja elegir campo a campo entre lo tuyo y lo suyo, con el precio base que resulta de cada opción.
+- Al guardar cuando otro ya ha guardado, en vez del error se incorporan sus cambios para revisar y volver a guardar.
+- Un borrador de una sesión anterior hecho sobre otra versión se recupera con los cambios de la vigente incorporados, en vez de sustituirlos.
 
 ## [0.2.0] - 2026-11-12
 

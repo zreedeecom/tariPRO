@@ -14,3 +14,17 @@
 .supplement-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-top:12px}
 .price-comparison td:last-child,.price-comparison th:last-child{text-align:center;width:56px}
 .price-comparison .row-hidden td{color:var(--muted)}.price-comparison .row-hidden td strong{font-weight:500}
+.merge-dialog{max-width:680px}
+.merge-list{max-height:55vh;overflow:auto;overflow-x:hidden;display:grid;gap:18px}
+.merge-group h3{margin-bottom:8px}
+.merge-item{display:grid;grid-template-columns:160px 1fr;gap:12px;padding:10px 0;border-top:1px solid var(--line);font-size:13px}
+.merge-field{font-weight:550}
+.merge-field small,.merge-option small{display:block;color:var(--muted);font-size:12px;font-weight:400}
+.merge-options{display:grid;gap:8px}
+.merge-option{flex-direction:row;gap:9px;align-items:flex-start;font-size:13px;font-weight:400;cursor:pointer}
+dialog .merge-option{margin:0}
+.merge-option input{width:16px;min-height:16px;margin:2px 0 0;padding:0;flex:none;accent-color:var(--accent)}
+.merge-dialog .banner{margin:16px 0 0}
+.merge-dialog .dialog-actions .text-button{margin-right:auto}
+.merge-dialog .dialog-actions .text-button+.text-button{margin-right:0}
+@media (max-width:640px){.merge-item{grid-template-columns:1fr}}

@@ -44,7 +44,7 @@ export class CatalogStore {
   save(state, expectedRevision, label) {
     const operation = this.queue.then(async () => {
       const current = await this.read();
-      if (current.revision !== expectedRevision) { const error = new Error('El catálogo cambió en otra pestaña. Exporta tu borrador y recarga antes de guardar.'); error.status = 409; throw error; }
+      if (current.revision !== expectedRevision) { const error = new Error('El catálogo cambió en otra pestaña. Exporta tu borrador y recarga antes de guardar.'); error.status = 409; error.code = 'STALE'; throw error; }
       const errors = validate(state); if (errors.length) { const error = new Error(errors.join('\n')); error.status = 422; throw error; }
       const next = materialize(state); next.revision = `${new Date().toISOString().replace(/[:.]/g, '-')}-${randomUUID().slice(0, 8)}`;
       next.savedAt = new Date().toISOString(); next.versionLabel = String(label || 'Actualización de tarifa').trim().slice(0, 100); next.savedWith = appVersion;
@@ -64,7 +64,14 @@ export class CatalogStore {
     });
     this.queue = operation.catch(() => {}); return operation;
   }
-  async version(id) { if (!/^[a-zA-Z0-9_-]+$/.test(id)) throw new Error('Versión no válida.'); return migrate(JSON.parse(await fs.readFile(path.join(this.directory, 'versions', `${id}.json`), 'utf8'))); }
+  // Deleted versions are still read from papelera/: a recovered draft may start from one.
+  async version(id) {
+    if (!/^[a-zA-Z0-9_-]+$/.test(id)) throw new Error('Versión no válida.');
+    const read = folder => fs.readFile(path.join(this.directory, folder, `${id}.json`), 'utf8');
+    return migrate(JSON.parse(await read('versions').catch(error => { if (error.code === 'ENOENT') return read('papelera'); throw error; })));
+  }
+  // Cheap check for changes saved elsewhere.
+  async revision() { const { revision, versionLabel, savedAt } = await this.read(); return { revision, versionLabel, savedAt }; }
   async history() {
     const names = (await fs.readdir(path.join(this.directory, 'versions'))).filter(name => versionFile.test(name));
     const items = await Promise.all(names.map(async name => { const state = await this.version(name.slice(0, -5)); return { id: state.revision, date: state.savedAt, label: state.versionLabel, materials: state.materials.length }; }));
